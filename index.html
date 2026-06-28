@@ -203,4 +203,162 @@
 
     <script>
         // 文豪データ
-        const bungoData =
+        const bungoData = [
+            { name: "太宰治", hp: 120, atk: 35, hint: "「恥の多い生涯を送って来ました」で始まる『人間失格』の著者。心中未遂を繰り返した。" },
+            { name: "夏目漱石", hp: 180, atk: 25, hint: "イギリス留学で神経衰弱になる。『吾輩は猫である』で一躍有名に。「月が綺麗ですね」の逸話も。" },
+            { name: "芥川龍之介", hp: 100, atk: 40, hint: "『羅生門』『鼻』の著者。ぼんやりとした不安を理由に35歳で早世。彼の名を冠した文学賞がある。" },
+            { name: "中島敦", hp: 150, atk: 30, hint: "『山月記』の著者。喘息のため33歳で早世。国語の教科書で虎になる男といえばこの人。" },
+            { name: "森鴎外", hp: 160, atk: 28, hint: "小説家でありながら、本職は「軍医（陸軍軍医総監）」。代表作は『舞姫』『高瀬舟』。" },
+            { name: "宮沢賢治", hp: 140, atk: 32, hint: "岩手県出身。農業指導をしながら『銀河鉄道の夜』や『注文の多い料理店』を執筆した。" }
+        ];
+
+        let player = {};
+        let enemy = {};
+        let currentQuizAnswer = "";
+        let isGameover = false;
+
+        // 起動時にキャラクター選択画面を作る
+        function createSelectScreen() {
+            const grid = document.getElementById('select-grid-container');
+            grid.innerHTML = "";
+            
+            bungoData.forEach((bungo, index) => {
+                const btn = document.createElement('button');
+                btn.className = "select-card-btn";
+                btn.innerHTML = `
+                    <div class="select-name">${bungo.name}</div>
+                    <div class="select-stats">HP: ${bungo.hp} / ATK: ${bungo.atk}</div>
+                `;
+                btn.onclick = () => selectCharacter(index);
+                grid.appendChild(btn);
+            });
+        }
+
+        // キャラクターが選ばれたときの処理
+        function selectCharacter(selectedIndex) {
+            // プレイヤーが選んだキャラをセット
+            player = { ...bungoData[selectedIndex] };
+
+            // 敵をランダムに選出（プレイヤーと同じキャラ以外）
+            let eIndex = Math.floor(Math.random() * bungoData.length);
+            while(eIndex === selectedIndex) {
+                eIndex = Math.floor(Math.random() * bungoData.length);
+            }
+            enemy = { ...bungoData[eIndex] };
+
+            // 画面を切り替える
+            document.getElementById('character-select').style.display = "none";
+            document.getElementById('battle-screen').style.display = "flex";
+
+            // バトル開始
+            isGameover = false;
+            document.getElementById('log-text').innerText = `${player.name} を選択！ バトル開始！`;
+            document.getElementById('log-text').style.color = "#00ffcc";
+            
+            updateDisplay();
+            nextTurn();
+        }
+
+        // 画面のHPや名前の表示を更新
+        function updateDisplay() {
+            document.getElementById('p-name').innerText = player.name;
+            document.getElementById('p-hp').innerText = Math.max(0, player.hp);
+            document.getElementById('p-atk').innerText = player.atk;
+
+            document.getElementById('e-name').innerText = enemy.name;
+            document.getElementById('e-hp').innerText = Math.max(0, enemy.hp);
+            document.getElementById('e-atk').innerText = enemy.atk;
+        }
+
+        // ターン（問題）の切り替え
+        function nextTurn() {
+            if (isGameover) return;
+
+            // クイズのお題
+            const quizSource = bungoData[Math.floor(Math.random() * bungoData.length)];
+            currentQuizAnswer = quizSource.name;
+            document.getElementById('hint-text').innerText = quizSource.hint;
+
+            // 選択肢作成
+            let choices = [quizSource.name];
+            while (choices.length < 4) {
+                let randomName = bungoData[Math.floor(Math.random() * bungoData.length)].name;
+                if (!choices.includes(randomName)) {
+                    choices.push(randomName);
+                }
+            }
+            choices.sort(() => Math.random() - 0.5);
+
+            // ボタン生成
+            const container = document.getElementById('options-container');
+            container.innerHTML = "";
+            choices.forEach(name => {
+                const btn = document.createElement('button');
+                btn.className = "btn";
+                btn.innerText = name;
+                btn.onclick = () => handleAction(name);
+                container.appendChild(btn);
+            });
+        }
+
+        // 行動処理
+        function handleAction(selectedName) {
+            if (isGameover) return;
+
+            const log = document.getElementById('log-text');
+            
+            if (selectedName === currentQuizAnswer) {
+                // 正解
+                enemy.hp -= player.atk;
+                log.innerText = `⭕正解！ ${player.name} の攻撃！ ${enemy.name} に ${player.atk} のダメージ！`;
+                log.style.color = "#00ffcc";
+            } else {
+                // 不正解
+                player.hp -= enemy.atk;
+                log.innerText = `❌不正解！ 正解は ${currentQuizAnswer}。 ${enemy.name} の反撃！ ${player.name} は ${enemy.atk} のダメージ！`;
+                log.style.color = "#ff4d4d";
+            }
+
+            updateDisplay();
+
+            // 勝敗判定
+            if (enemy.hp <= 0) {
+                isGameover = true;
+                log.innerText = `🎉 勝負あり！ ${enemy.name} を撃破した！ あなたの勝利です！`;
+                log.style.color = "#dab358";
+                showResetButton();
+            } else if (player.hp <= 0) {
+                isGameover = true;
+                log.innerText = `💀 勝負あり！ ${player.name} が倒れた… あなたの敗北です。`;
+                log.style.color = "#ff4d4d";
+                showResetButton();
+            } else {
+                const buttons = document.querySelectorAll('.btn');
+                buttons.forEach(b => b.disabled = true);
+                setTimeout(nextTurn, 2000);
+            }
+        }
+
+        function showResetButton() {
+            const container = document.getElementById('options-container');
+            container.innerHTML = "";
+            const resetBtn = document.createElement('button');
+            resetBtn.className = "btn";
+            resetBtn.style.gridColumn = "span 2";
+            resetBtn.style.backgroundColor = "#dab358";
+            resetBtn.style.color = "black";
+            resetBtn.innerText = "キャラ選択に戻る";
+            // リセット時は選択画面に戻す
+            resetBtn.onclick = () => {
+                document.getElementById('battle-screen').style.display = "none";
+                document.getElementById('character-select').style.display = "block";
+                createSelectScreen();
+            };
+            container.appendChild(resetBtn);
+        }
+
+        // 最初は選択画面を起動
+        createSelectScreen();
+    </script>
+</body>
+</html>
