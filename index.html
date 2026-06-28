@@ -3,245 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>国語便覧 文豪バトルカードゲーム（ログイン版）</title>
+    <title>国語便覧 文豪バトルカードゲーム（修正版）</title>
     <style>
-        body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-color: #1a1a1a;
-            color: #fff;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        h1 {
-            color: #dab358;
-            text-shadow: 0px 2px 4px rgba(0,0,0,0.8);
-            margin-bottom: 5px;
-        }
-        .subtitle {
-            color: #aaa;
-            margin-bottom: 20px;
-            font-size: 0.9em;
-        }
-        /* ログイン画面用スタイル */
-        .auth-container {
-            background-color: #2a2a2a;
-            border: 2px solid #dab358;
-            padding: 30px;
-            border-radius: 10px;
-            max-width: 400px;
-            width: 100%;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
-            text-align: center;
-            display: block;
-        }
-        .auth-input {
-            background-color: #333;
-            border: 1px solid #555;
-            color: white;
-            padding: 12px;
-            border-radius: 5px;
-            font-size: 1em;
-            width: 100%;
-            margin-bottom: 15px;
-            box-sizing: border-box;
-        }
-        .auth-input:focus { border-color: #dab358; outline: none; }
-        .auth-btn {
-            background: linear-gradient(135deg, #dab358, #b08b35);
-            color: black;
-            border: none;
-            border-radius: 5px;
-            padding: 12px;
-            font-size: 1em;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            margin-bottom: 10px;
-        }
-        .switch-auth-lnk {
-            color: #00ffcc;
-            font-size: 0.85em;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-        /* ゲーム画面用スタイル */
-        .game-main-content { display: none; flex-direction: column; align-items: center; width: 100%; }
-
-        .rules-container {
-            background-color: #2a2a2a;
-            border: 2px solid #dab358;
-            padding: 25px;
-            border-radius: 10px;
-            max-width: 650px;
-            width: 100%;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
-        }
-        .rules-content {
-            text-align: left;
-            line-height: 1.6;
-            font-size: 0.95em;
-            max-height: 400px;
-            overflow-y: auto;
-            padding-right: 10px;
-        }
-        .rules-content h3 { color: #dab358; border-bottom: 1px solid #555; padding-bottom: 5px; margin-top: 20px; }
-        .rules-content ul { padding-left: 20px; }
-        .highlight-text { color: #00ffcc; font-weight: bold; }
-        .danger-text { color: #ff4d4d; font-weight: bold; }
-        
-        .mode-select-btns { display: flex; gap: 15px; margin-top: 25px; }
-        .start-nav-btn {
-            background: linear-gradient(135deg, #dab358, #b08b35);
-            color: black;
-            border: none;
-            border-radius: 8px;
-            padding: 15px 25px;
-            font-size: 1.05em;
-            font-weight: bold;
-            cursor: pointer;
-            flex: 1;
-            box-shadow: 0 4px 10px rgba(218, 179, 88, 0.3);
-        }
-        .online-btn { background: linear-gradient(135deg, #00ffcc, #00b399); }
-
-        .select-container {
-            background-color: #2a2a2a;
-            border: 2px solid #dab358;
-            padding: 25px;
-            border-radius: 10px;
-            max-width: 750px;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
-            display: none;
-        }
-        .select-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-top: 20px;
-            max-height: 450px;
-            overflow-y: auto;
-            padding-right: 5px;
-        }
-        .select-card-btn {
-            background: linear-gradient(135deg, #3a3a3a, #222);
-            color: white;
-            border: 2px solid #555;
-            border-radius: 8px;
-            padding: 10px;
-            cursor: pointer;
-            text-align: left;
-        }
-        .select-card-btn:hover { border-color: #dab358; }
-        .select-name { font-size: 1.1em; font-weight: bold; color: #dab358; }
-        .select-stats { font-size: 0.85em; color: #ccc; margin: 3px 0; }
-        .select-ability { font-size: 0.75em; color: #00ffcc; background-color: #111; padding: 4px; border-radius: 4px; }
-        
-        .online-setup-box {
-            background-color: #1a1a1a;
-            border: 1px solid #555;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            align-items: center;
-        }
-        .online-input {
-            background-color: #333;
-            border: 1px solid #dab358;
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 1.1em;
-            text-align: center;
-            width: 200px;
-        }
-
-        .battle-container { display: none; flex-direction: column; align-items: center; width: 100%; }
-        .battle-field { display: flex; justify-content: space-around; width: 100%; max-width: 700px; margin-bottom: 20px; }
-        .card {
-            background: linear-gradient(135deg, #2c2c2c, #111);
-            border: 3px solid #dab358;
-            border-radius: 10px;
-            width: 150px;
-            padding: 15px;
-            text-align: center;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
-        }
-        .card.enemy { border-color: #c93a3a; }
-        .card-name { font-size: 1.1em; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #555; padding-bottom: 5px; }
-        .stat { font-size: 1em; margin: 5px 0; font-weight: bold; }
-        .hp { color: #ff4d4d; }
-        .atk { color: #ffb300; }
-        .ability-badge { font-size: 0.75em; color: #00ffcc; margin-top: 8px; border: 1px dashed #00ffcc; padding: 2px; border-radius: 4px; }
-        .quiz-container {
-            background-color: #2a2a2a;
-            border: 2px solid #555;
-            padding: 20px;
-            border-radius: 8px;
-            max-width: 600px;
-            width: 100%;
-            text-align: center;
-        }
-        .hint-box {
-            background-color: #222;
-            border-left: 5px solid #dab358;
-            padding: 15px;
-            margin-bottom: 20px;
-            min-height: 60px;
-            font-size: 1em;
-            line-height: 1.5;
-            text-align: left;
-        }
-        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .btn {
-            background: #3a3a3a;
-            color: white;
-            border: 1px solid #555;
-            padding: 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: bold;
-        }
-        .btn:hover { background-color: #dab358; color: black; border-color: #dab358; }
-        .log {
-            margin-top: 15px;
-            font-weight: bold;
-            font-size: 1em;
-            min-height: 70px;
-            color: #00ffcc;
-            line-height: 1.4;
-            background-color: #1a1a1a;
-            padding: 10px;
-            border-radius: 5px;
-        }
-        .user-badge {
-            font-size: 0.8em;
-            color: #00ffcc;
-            margin-bottom: 15px;
-            background-color: #222;
-            padding: 5px 10px;
-            border-radius: 20px;
-            border: 1px solid #444;
-        }
+        body { font-family: Arial, sans-serif; background-color: #1a1a1a; color: #fff; text-align: center; padding: 20px; }
+        h1 { color: #dab358; }
+        .auth-container { background-color: #2a2a2a; border: 2px solid #dab358; padding: 20px; border-radius: 10px; max-width: 350px; margin: 0 auto 20px; }
+        .auth-input { background-color: #333; border: 1px solid #555; color: white; padding: 10px; width: 90%; margin-bottom: 10px; }
+        .auth-btn { background: #dab358; color: black; border: none; padding: 10px; width: 95%; font-weight: bold; cursor: pointer; }
+        .switch-auth-lnk { color: #00ffcc; cursor: pointer; font-size: 0.85em; text-decoration: underline; }
+        .game-main-content { display: none; }
+        .btn { background: #3a3a3a; color: white; border: 1px solid #555; padding: 10px 20px; margin: 5px; cursor: pointer; font-weight: bold; }
+        .btn:hover { background-color: #dab358; color: black; }
+        .battle-field { display: flex; justify-content: space-around; max-width: 600px; margin: 20px auto; }
+        .card { background: #2c2c2c; border: 2px solid #dab358; border-radius: 8px; width: 140px; padding: 10px; }
+        .quiz-container { background-color: #2a2a2a; padding: 20px; border-radius: 8px; max-width: 500px; margin: 20px auto; }
+        .hint-box { background-color: #222; padding: 15px; text-align: left; margin-bottom: 15px; }
+        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .log { margin-top: 15px; font-weight: bold; color: #00ffcc; min-height: 50px; background:#111; padding:10px; }
     </style>
 </head>
 <body>
 
     <h1>国語便覧 文豪バトル</h1>
-    <p class="subtitle" id="game-subtitle">正しい知識を選び、特殊能力で勝利を掴め！</p>
 
     <div id="auth-screen" class="auth-container">
         <h2 id="auth-title">🔐 ログイン</h2>
-        <p id="auth-msg" style="font-size:0.85em; color:#ff4d4d; margin-bottom:10px;"></p>
+        <p id="auth-msg" style="color:#ff4d4d; font-size:0.85em;"></p>
         <input type="email" id="auth-email" class="auth-input" placeholder="メールアドレス">
         <input type="password" id="auth-password" class="auth-input" placeholder="パスワード (6文字以上)">
         <button id="auth-submit-btn" class="auth-btn" onclick="handleAuth()">ログインする</button>
@@ -249,534 +36,216 @@
     </div>
 
     <div id="game-main-content" class="game-main-content">
-        
-        <div class="user-badge" id="login-user-badge">ログイン中: 未ログイン</div>
+        <p id="login-user-badge" style="color:#00ffcc;"></p>
 
-        <div id="rules-screen" class="rules-container">
-            <h2>📜 対戦ルール説明</h2>
-            <div class="rules-content">
-                <h3>⚔️ 基本ルール</h3>
-                <ul>
-                    <li>出題されるお題を読み、正しい文豪の名前を4択から選んでください。</li>
-                    <li><span class="highlight-text">正解時</span>：自身のATKで相手にダメージを与えます。</li>
-                    <li><span class="danger-text">⚠️ 敵のリアルタイム自動攻撃</span>：敵はクイズに関係なく、<span class="danger-text">5秒ごとに自動攻撃</span>してきます！</li>
-                    <li><span class="danger-text">不正解時</span>：ペナルティとして、即座に敵から反撃ダメージを受けます。</li>
-                    <li><span class="highlight-text">🌐 オンライン対戦</span>：友達と同じ部屋番号を入力して、リアルタイムにHPを削り合えます！</li>
-                </ul>
-            </div>
-            <div class="mode-select-btns">
-                <button class="start-nav-btn" onclick="goToSelectScreen(false)">👤 一人で遊ぶ</button>
-                <button class="start-nav-btn online-btn" onclick="goToSelectScreen(true)">🌐 オンライン対戦</button>
-            </div>
+        <div id="mode-screen">
+            <button class="btn" onclick="startOffline()">👤 一人で遊ぶ</button>
+            <hr style="border-color:#444; margin:20px;">
+            <h3>🌐 オンライン対戦部屋設定</h3>
+            <input type="number" id="room-input" style="padding:10px; text-align:center;" placeholder="4桁の部屋番号">
+            <br><br>
+            <button class="btn" onclick="startOnline('host')">部屋を作る (先に入る)</button>
+            <button class="btn" style="background:#00ffcc; color:black;" onclick="startOnline('guest')">部屋に入る (後から入る)</button>
         </div>
 
-        <div id="character-select" class="select-container">
-            <h2 id="select-title">出陣する文豪を選択（総勢20名）</h2>
-            <div class="select-grid" id="select-grid-container"></div>
-            
-            <div id="online-setup" class="online-setup-box" style="display: none;">
-                <h3>🔑 オンライン部屋設定</h3>
-                <p style="font-size:0.85em; color:#aaa; margin:0;">同じ4桁の数字を入力した友達とマッチングします</p>
-                <input type="number" id="room-input" class="online-input" placeholder="部屋番号 (例: 1234)" min="1000" max="9999">
-                <div style="display: flex; gap: 10px; margin-top: 5px;">
-                    <button class="btn" style="padding: 8px 15px; font-size: 0.9em;" onclick="startOnlineGame('host')">部屋を作る (先に入る)</button>
-                    <button class="btn" style="padding: 8px 15px; font-size: 0.9em; background-color:#00ffcc; color:black;" onclick="startOnlineGame('guest')">部屋に入る (後から入る)</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="battle-screen" class="battle-container">
+        <div id="battle-screen" style="display:none;">
             <div class="battle-field">
                 <div class="card">
-                    <div style="font-size:0.8em; color:#aaa;" id="p-label">味方</div>
-                    <div class="card-name" id="p-name">???</div>
-                    <div class="stat hp">HP: <span id="p-hp">0</span></div>
-                    <div class="stat atk">ATK: <span id="p-atk">0</span></div>
-                    <div class="ability-badge" id="p-ability-name">-</div>
+                    <div style="font-size:0.8em; color:#aaa;">あなた</div>
+                    <h3 id="p-name">-</h3>
+                    <div id="p-hp" style="color:#ff4d4d; font-weight:bold;">HP: 100</div>
                 </div>
                 <div style="font-size: 2em; align-self: center; color: #dab358;">VS</div>
-                <div class="card enemy">
-                    <div style="font-size:0.8em; color:#aaa;" id="e-label">敵</div>
-                    <div class="card-name" id="e-name">???</div>
-                    <div class="stat hp">HP: <span id="e-hp">0</span></div>
-                    <div class="stat atk">ATK: <span id="e-atk">0</span></div>
-                    <div class="ability-badge" id="e-ability-name">-</div>
+                <div class="card">
+                    <div style="font-size:0.8em; color:#aaa;">相手</div>
+                    <h3 id="e-name">待機中...</h3>
+                    <div id="e-hp" style="color:#ff4d4d; font-weight:bold;">HP: 100</div>
                 </div>
             </div>
             <div class="quiz-container">
                 <div class="hint-box" id="hint-text"></div>
                 <div class="options" id="options-container"></div>
-                <div class="log" id="log-text"></div>
+                <div class="log" id="log-text">バトル開始！</div>
             </div>
         </div>
-
     </div>
 
     <script>
-        // --- Supabase 設定 ---
         const SUPABASE_URL = "https://eqqbxsiptbgxgsznuzhq.supabase.co";
         const SUPABASE_KEY = "sb_publishable_yP1Xswfbs9_K0-1CoSimPw_p1TXzzxd";
-
         let currentAuthMode = "login"; 
         let loginUserToken = "";
-        let loginUserEmail = "";
 
-        // --- 🔐 認証システム用API通信機能 ---
+        // 認証処理
         async function handleAuth() {
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
-            const msgElm = document.getElementById('auth-msg');
-            msgElm.innerText = "通信中...";
-
-            if(!email || !password) { msgElm.innerText = "メールアドレスとパスワードを入力してください"; return; }
+            const msg = document.getElementById('auth-msg');
+            msg.innerText = "通信中...";
 
             let url = `${SUPABASE_URL}/auth/v1/token?grant_type=password`; 
-            if(currentAuthMode === "signup") {
-                url = `${SUPABASE_URL}/auth/v1/signup`; 
-            }
+            if(currentAuthMode === "signup") url = `${SUPABASE_URL}/auth/v1/signup`; 
 
             try {
                 const res = await fetch(url, {
                     method: "POST",
-                    headers: {
-                        "apikey": SUPABASE_KEY,
-                        "Content-Type": "application/json"
-                    },
+                    headers: { "apikey": SUPABASE_KEY, "Content-Type": "application/json" },
                     body: JSON.stringify({ email, password })
                 });
                 const data = await res.json();
-
-                if(!res.ok) {
-                    msgElm.innerText = `エラー: ${data.msg || data.error_description || "認証に失敗しました"}`;
-                    return;
-                }
+                if(!res.ok) { msg.innerText = `エラー: ${data.msg || "失敗しました"}`; return; }
 
                 if(currentAuthMode === "signup") {
-                    msgElm.style.color = "#00ffcc";
-                    msgElm.innerText = "アカウント作成成功！ログイン画面からログインしてください。";
+                    msg.innerText = "アカウント作成成功！ログインしてください。";
                     toggleAuthMode();
                 } else {
                     loginUserToken = data.access_token;
-                    loginUserEmail = data.user.email;
-                    
                     document.getElementById('auth-screen').style.display = "none";
-                    document.getElementById('game-main-content').style.display = "flex";
-                    document.getElementById('login-user-badge').innerText = `👤 ログイン中: ${loginUserEmail}`;
+                    document.getElementById('game-main-content').style.display = "block";
+                    document.getElementById('login-user-badge').innerText = `👤 ログイン中: ${data.user.email}`;
                 }
-            } catch(e) {
-                msgElm.innerText = "通信エラーが発生しました";
-            }
+            } catch(e) { msg.innerText = "通信エラー"; }
         }
 
         function toggleAuthMode() {
-            const title = document.getElementById('auth-title');
-            const btn = document.getElementById('auth-submit-btn');
-            const swLink = document.getElementById('auth-switch-text');
-            document.getElementById('auth-msg').innerText = "";
-
-            if(currentAuthMode === "login") {
-                currentAuthMode = "signup";
-                title.innerText = "📝 新規アカウント登録";
-                btn.innerText = "新しくアカウントを作る";
-                swLink.innerText = "すでにアカウントを持っています（ログイン）";
-            } else {
-                currentAuthMode = "login";
-                title.innerText = "🔐 ログイン";
-                btn.innerText = "ログインする";
-                swLink.innerText = "新しくアカウントを作る（新規登録）";
-            }
+            currentAuthMode = (currentAuthMode === "login") ? "signup" : "login";
+            document.getElementById('auth-title').innerText = currentAuthMode === "login" ? "🔐 ログイン" : "📝 新規登録";
+            document.getElementById('auth-submit-btn').innerText = currentAuthMode === "login" ? "ログインする" : "登録する";
         }
 
-        // --- 📊 通常のデータベース用API通信機能 ---
+        // DB通信共通
         async function supabaseFetch(endpoint, options = {}) {
-            const url = `${SUPABASE_URL}/rest/v1/${endpoint}`;
             const headers = {
                 "apikey": SUPABASE_KEY,
-                "Authorization": loginUserToken ? `Bearer ${loginUserToken}` : `Bearer ${SUPABASE_KEY}`,
+                "Authorization": `Bearer ${SUPABASE_KEY}`,
                 "Content-Type": "application/json",
                 "Prefer": "return=representation"
             };
-            if (options.headers) Object.assign(headers, options.headers);
-            const res = await fetch(url, { ...options, headers });
-            return res;
+            return fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, { ...options, headers: { ...headers, ...options.headers } });
         }
 
-        const bungoData = [
-            { name: "太宰治", hp: 240, maxHp: 240, atk: 35, hint: "『人間失格』『走れメロス』の著者。心中未遂を繰り返し、39歳で玉川上水にて入水。", abName: "人間失格", abDesc: "HP半分以下でATK1.3倍", isPlayable: true },
-            { name: "夏目漱石", hp: 360, maxHp: 360, atk: 25, hint: "『吾輩は猫である』『こころ』の著者。千円札の肖像でも有名。イギリス留学で神経衰弱に。", abName: "月が綺麗ですね", abDesc: "正解時25%でHP30回復", isPlayable: true },
-            { name: "芥川龍之介", hp: 200, maxHp: 200, atk: 40, hint: "『羅生門』『蜘蛛の糸』の著者。「ぼんやりとした不安」を理由に自ら命を絶った天才短編作家。", abName: "蜘蛛の糸", abDesc: "被弾時、敵HPを10奪う", isPlayable: true },
-            { name: "中島敦", hp: 300, maxHp: 300, atk: 30, hint: "『山月記』『李陵』の著者。自尊心と羞恥心によって虎に変貌してしまう男を描いた。", abName: "月下獣", abDesc: "最初の正解時のみ攻撃力2倍", isPlayable: true },
-            { name: "森鴎外", hp: 320, maxHp: 320, atk: 28, hint: "『舞姫』『高瀬舟』の著者。小説家であり、陸軍軍医総監（軍医のトップ）という本職を持っていた。", abName: "舞姫", abDesc: "20%で敵攻撃を完全回避", isPlayable: true },
-            { name: "宮沢賢治", hp: 280, maxHp: 280, atk: 32, hint: "『銀河鉄道の夜』『注文の多い料理店』の著者。地質調査や農業指導に奔走した岩手生まれの詩人。", abName: "雨ニモマケズ", abDesc: "受けるダメージを常に5軽減", isPlayable: true },
-            { name: "鴨長明", hp: 220, maxHp: 220, atk: 38, hint: "「ゆく河の流れは絶えずして…」で知られる鎌倉時代の代表的な随筆『方丈記』の著者。", abName: "無常観", abDesc: "5連正解で敵ATKを永久半減", isPlayable: true },
-            { name: "重松清", hp: 320, maxHp: 320, atk: 26, hint: "現代の作家。『ナイフ』『エイジ』『とんび』など、現代のいじめや家族の葛藤をリアルに描く。", abName: "親心のバリア", abDesc: "開始時に耐久40のシールド", isPlayable: true },
-            { name: "鷺沢萠", hp: 260, maxHp: 260, atk: 34, hint: "現役女子大生作家として注目され『川べりの道』や『駆ける少年』を発表。若者の孤独を描いた。", abName: "駆ける衝動", abDesc: "毎ターン終了時敵に10ダメージ", isPlayable: true },
-            { name: "永井荷風", hp: 310, maxHp: 310, atk: 27, hint: "耽美派の作家。フランス・アメリカ留学を経て、江戸情緒や花柳界を描いた『濹東綺譚』を残す。", abName: "断腸亭日乗", abDesc: "毎ターン敵のHPを5吸収", isPlayable: true },
-            { name: "野間宏", hp: 300, maxHp: 300, atk: 29, hint: "第一次戦後派の作家。自身の軍隊経験を基に、抑圧された人間の心理を克明に描いた『真空地帯』が代表作。", abName: "真空地帯", abDesc: "HPが30%以下になるとATKが1.4倍", isPlayable: true },
-            { name: "安部公房", hp: 330, maxHp: 330, atk: 26, hint: "前衛文学の旗手。砂の穴の底に閉じ込められた男の不条理を描いた『砂の女』や『箱男』で世界的に評価された。", abName: "砂の壁", abDesc: "クイズ不正解時の敵の反撃を完全無効化", isPlayable: true },
-            { name: "井上靖", hp: 350, maxHp: 350, atk: 26, hint: "歴史小説の大家。シルクロードや仏教を題材にした『天平の獍』『敦煌』や、自伝的小説『しろばんば』が有名。", abName: "天平の甍", abDesc: "3連正解で自身のHPを40回復", isPlayable: true },
-            { name: "三浦哲郎", hp: 310, maxHp: 310, atk: 29, hint: "純文学作家。兄姉が次々と失踪・自殺した自身の悲劇的な家系を見つめ、ひたむきな愛を描いた『忍ぶ川』で芥川賞。", abName: "忍ぶ川の情愛", abDesc: "HPが50以下になると一度だけHPが40回復", isPlayable: true },
-            { name: "開高健", hp: 300, maxHp: 300, atk: 32, hint: "ルポルタージュ作家。ベトナム戦争の最前線に従軍した経験を描いた『輝ける闇』や、壮大な釣りエッセイで知られる。", abName: "熱き輝ける闇", abDesc: "正解時、15%の確率で敵に2倍ダメージ", isPlayable: true },
-            { name: "遠藤周作", hp: 340, maxHp: 340, atk: 25, hint: "キリスト教作家。江戸時代のキリシタン弾圧と信者の苦悩、神の沈黙を描いた名作『沈黙』の著者。", abName: "大いなる沈黙", abDesc: "受けるすべてのダメージを常に15%カット", isPlayable: true },
-            { name: "大江健三郎", hp: 270, maxHp: 270, atk: 36, hint: "1994年ノーベル文学賞受賞。障害を持つ息子との生を描いた『個人的な体験』や『万延元年のフットボール』を執筆。", abName: "個人的な神話", abDesc: "クイズに正解する度に、自身のATKが3ずつ上昇", isPlayable: true },
-            { name: "幸田文", hp: 330, maxHp: 330, atk: 26, hint: "幸田露伴の娘。父の厳しい躾や死を綴った随筆や、芸者置屋の日常を緻密に描いた小説『流れる』で知られる。", abName: "凛々しき流れる", abDesc: "敵の自動攻撃を受けた際、15%の確率で無効化", isPlayable: true },
-            { name: "星新一", hp: 260, maxHp: 260, atk: 30, hint: "「ショートショートの神様」。生涯に1000編以上の超短編SFを残す。代表作に『ボッコちゃん』など。", abName: "おせっかいな宇宙人", abDesc: "毎ターンATKが15〜45の間でランダムに変動", isPlayable: true },
-            { name: "浅田次郎", hp: 330, maxHp: 330, atk: 28, hint: "「平成の泣かせ屋」。鉄道員の老境と奇跡を描いた『鉄道員（ぽっぽや）』や、中国の歴史巨編『蒼穹の昴』の著者。", abName: "ぽっぽやの奇跡", abDesc: "HPが0になるダメージを受けた時、一度だけHP1で耐える", isPlayable: true }
+        const quizData = [
+            { hint: "『人間失格』『走れメロス』の著者。", ans: "太宰治", choices: ["太宰治", "夏目漱石", "芥川龍之介", "中島敦"] },
+            { hint: "『吾輩は猫である』『こころ』の著者。", ans: "夏目漱石", choices: ["夏目漱石", "太宰治", "森鴎外", "宮沢賢治"] },
+            { hint: "『羅生門』『蜘蛛の糸』の著者。", ans: "芥川龍之介", choices: ["芥川龍之介", "太宰治", "中島敦", "江戸川乱歩"] }
         ];
 
-        const playableBungo = bungoData.filter(b => b.isPlayable);
+        let playerHp = 200, enemyHp = 200, currentRoomId = "", playerRole = "", isGameover = false;
+        let syncTimer = null;
 
-        let player = null, enemy = null, currentQuizAnswer = "", isGameover = false;
-        let enemyAttackTimer = null, onlineSyncTimer = null;
-        let playerStreakCount = 0, playerShield = 0;
-        let isAtsushiTriggered = false, isChomeiTriggered = false, isMishimaTriggered = false, isAsadaTriggered = false;
-        
-        let isOnlineMode = false, currentRoomId = "", playerRole = ""; 
-        let selectedBungoIndex = 0;
-
-        function goToSelectScreen(online) {
-            isOnlineMode = online;
-            document.getElementById('rules-screen').style.display = "none";
-            document.getElementById('character-select').style.display = "block";
-            
-            if(isOnlineMode) {
-                document.getElementById('select-title').innerText = "🌐 オンライン対戦：使用する文豪を選択";
-                document.getElementById('online-setup').style.display = "flex";
-                document.getElementById('p-label').innerText = "あなた";
-                document.getElementById('e-label').innerText = "対戦相手";
-            } else {
-                document.getElementById('select-title').innerText = "出陣する文豪を選択（総勢20名）";
-                document.getElementById('online-setup').style.display = "none";
-                document.getElementById('p-label').innerText = "味方";
-                document.getElementById('e-label').innerText = "敵";
-            }
-            createSelectScreen();
+        function startOffline() {
+            document.getElementById('mode-screen').style.display = "none";
+            document.getElementById('battle-screen').style.display = "block";
+            document.getElementById('p-name').innerText = "あなた";
+            document.getElementById('e-name').innerText = "CPU";
+            nextQuiz();
         }
 
-        function createSelectScreen() {
-            const grid = document.getElementById('select-grid-container');
-            grid.innerHTML = "";
-            playableBungo.forEach((bungo, index) => {
-                const btn = document.createElement('button');
-                btn.className = "select-card-btn";
-                if(isOnlineMode && selectedBungoIndex === index) {
-                    btn.style.borderColor = "#00ffcc";
-                    btn.style.backgroundColor = "#225544";
-                }
-                btn.innerHTML = `
-                    <div class="select-name">${bungo.name}</div>
-                    <div class="select-stats">HP: ${bungo.hp} / ATK: ${bungo.atk}</div>
-                    <div class="select-ability">⚡ ${bungo.abName}: ${bungo.abDesc}</div>
-                `;
-                btn.onclick = () => { 
-                    selectedBungoIndex = index;
-                    if(!isOnlineMode) {
-                        startOfflineGame(index);
-                    } else {
-                        createSelectScreen();
-                    }
-                };
-                grid.appendChild(btn);
-            });
-        }
-
-        function startOfflineGame(index) {
-            player = { ...playableBungo[index] };
-            let eIndex = Math.floor(Math.random() * playableBungo.length);
-            while(playableBungo[eIndex].name === player.name) eIndex = Math.floor(Math.random() * playableBungo.length);
-            enemy = { ...playableBungo[eIndex] };
-
-            initBattleState();
-            document.getElementById('character-select').style.display = "none";
-            document.getElementById('battle-screen').style.display = "flex";
-            document.getElementById('log-text').innerHTML = `${player.name} VS ${enemy.name} ！ バトル開始！`;
-            
-            updateDisplay();
-            nextTurn();
-            enemyAttackTimer = setInterval(enemyActiveAttack, 5000);
-        }
-
-        function initBattleState() {
-            playerStreakCount = 0; playerShield = 0; isAtsushiTriggered = false; isChomeiTriggered = false; isAsadaTriggered = false; isMishimaTriggered = false;
-            if (player.name === "重松清") playerShield = 40;
-            isGameover = false;
-            if(enemyAttackTimer) clearInterval(enemyAttackTimer);
-            if(onlineSyncTimer) clearInterval(onlineSyncTimer);
-        }
-
-        async function startOnlineGame(role) {
+        async function startOnline(role) {
             const roomNum = document.getElementById('room-input').value;
-            if(!roomNum || roomNum < 1000 || roomNum > 9999) {
-                alert("4桁の部屋番号(1000〜9999)を入力してください"); return;
-            }
-            currentRoomId = "room_" + roomNum; // 🛠️ ここをアンダーバーに完全統一
+            if(!roomNum) { alert("部屋番号を入れてね"); return; }
+            currentRoomId = "room_" + roomNum;
             playerRole = role;
-            player = { ...playableBungo[selectedBungoIndex] };
 
-            document.getElementById('log-text').innerHTML = "通信中...";
+            document.getElementById('mode-screen').style.display = "none";
+            document.getElementById('battle-screen').style.display = "block";
 
             if(role === 'host') {
-                const roomData = {
-                    id: currentRoomId,
-                    h_name: player.name, h_hp: player.hp, h_max: player.hp, h_atk: player.atk, h_ab: player.abName,
-                    g_name: "待機中...", g_hp: 0, g_max: 0, g_atk: 0, g_ab: "-",
-                    last_action: "ホスト入室"
-                };
+                document.getElementById('p-name').innerText = "ホスト(あなた)";
+                document.getElementById('log-text').innerText = "ゲストの入室を待っています...";
+                
+                // 既存の部屋を消して新規作成 (今作った5つのカラムだけで送信)
                 await supabaseFetch(`rooms?id=eq.${currentRoomId}`, { method: "DELETE" });
                 await supabaseFetch("rooms", {
                     method: "POST",
-                    body: JSON.stringify(roomData)
+                    body: JSON.stringify({ id: currentRoomId, h_name: "ホストプレイヤー", h_ab: "200", g_name: "待機中...", g_ab: "200", last_action: "ホスト入室" })
                 });
-
-                enemy = { name: "対戦相手", hp: 100, maxHp: 100, atk: 0, abName: "-" };
-                document.getElementById('log-text').innerHTML = "友達の入室を待っています...部屋番号を伝えてください。";
             } else {
+                document.getElementById('p-name').innerText = "ゲスト(あなた)";
+                document.getElementById('log-text').innerText = "部屋に接続中...";
+
                 const res = await supabaseFetch(`rooms?id=eq.${currentRoomId}`, { method: "GET" });
                 const rooms = await res.json();
-                if(!rooms || rooms.length === 0) {
-                    alert("指定された部屋が見つかりません。ホストが先に入室して『部屋を作る』を押してください。"); return;
-                }
-                
-                const room = rooms[0];
-                enemy = { name: room.h_name, hp: room.h_hp, maxHp: room.h_max, atk: room.h_atk, abName: room.h_ab };
+                if(!rooms || rooms.length === 0) { alert("部屋が見つかりません！"); location.reload(); return; }
 
-                const updateRoomData = {
-                    id: currentRoomId,
-                    h_name: room.h_name, h_hp: room.h_hp, h_max: room.h_max, h_atk: room.h_atk, h_ab: room.h_ab,
-                    g_name: player.name, g_hp: player.hp, g_max: player.hp, g_atk: player.atk, g_ab: player.abName,
-                    last_action: "ゲスト入室"
-                };
-
+                // ゲスト情報を上書き
                 await supabaseFetch("rooms", {
                     method: "POST",
-                    body: JSON.stringify(updateRoomData),
-                    headers: { "Prefer": "resolution=merge-duplicates" } 
+                    body: JSON.stringify({ id: currentRoomId, h_name: rooms[0].h_name, h_ab: rooms[0].h_ab, g_name: "ゲストプレイヤー", g_ab: "200", last_action: "ゲスト入室" }),
+                    headers: { "Prefer": "resolution=merge-duplicates" }
                 });
             }
 
-            initBattleState();
-            document.getElementById('character-select').style.display = "none";
-            document.getElementById('battle-screen').style.display = "flex";
-            updateDisplay();
-            nextTurn();
-
-            onlineSyncTimer = setInterval(syncOnlineData, 2000);
-            enemyAttackTimer = setInterval(enemyActiveAttack, 5000);
+            nextQuiz();
+            syncTimer = setInterval(syncOnline, 1500);
         }
 
-        async function syncOnlineData() {
-            if(isGameover || !isOnlineMode) return;
+        async function syncOnline() {
+            if(isGameover) return;
+            
+            // 自分のHPを「h_ab」または「g_ab」を身代わりにして保存！
+            const payload = playerRole === 'host' ? { h_ab: String(playerHp) } : { g_ab: String(playerHp) };
+            await supabaseFetch(`rooms?id=eq.${currentRoomId}`, { method: "PATCH", body: JSON.stringify(payload) });
 
-            const updatePayload = {};
-            if(playerRole === 'host') {
-                updatePayload.h_hp = player.hp;
-            } else {
-                updatePayload.g_hp = player.hp;
-            }
-            await supabaseFetch(`rooms?id=eq.${currentRoomId}`, {
-                method: "PATCH",
-                body: JSON.stringify(updatePayload)
-            });
-
+            // 相手のHPを取得
             const res = await supabaseFetch(`rooms?id=eq.${currentRoomId}`, { method: "GET" });
             const rooms = await res.json();
             if(rooms && rooms.length > 0) {
                 const room = rooms[0];
                 if(playerRole === 'host') {
                     if(room.g_name !== "待機中...") {
-                        enemy.name = room.g_name;
-                        enemy.hp = room.g_hp;
-                        enemy.maxHp = room.g_max;
-                        enemy.atk = room.g_atk;
-                        enemy.abName = room.g_ab;
+                        document.getElementById('e-name').innerText = room.g_name;
+                        enemyHp = parseInt(room.g_ab) || 0;
                     }
                 } else {
-                    enemy.name = room.h_name;
-                    enemy.hp = room.h_hp;
-                    enemy.maxHp = room.h_max;
-                    enemy.atk = room.h_atk;
-                    enemy.abName = room.h_ab;
+                    document.getElementById('e-name').innerText = room.h_name;
+                    enemyHp = parseInt(room.h_ab) || 0;
                 }
             }
-            updateDisplay();
-            checkBattleOver();
+            
+            document.getElementById('p-hp').innerText = `HP: ${playerHp}`;
+            document.getElementById('e-hp').innerText = `HP: ${enemyHp}`;
+            checkWinLose();
         }
 
-        function enemyActiveAttack() {
-            if (isGameover || !player || !enemy) return;
-            if (isOnlineMode && enemy.atk === 0) return;
-
-            const log = document.getElementById('log-text');
-            let dmgLog = "", abLog = "";
+        function nextQuiz() {
+            if(isGameover) return;
+            const q = quizData[Math.floor(Math.random() * quizData.length)];
+            document.getElementById('hint-text').innerText = q.hint;
             
-            if (player.name === "森鴎外" && Math.random() < 0.20) {
-                log.innerHTML = "【能力発動】『舞姫』! 敵の自動攻撃を完全回避！"; return;
-            }
-            if (player.name === "幸田文" && Math.random() < 0.15) {
-                log.innerHTML = "【能力発動】『流れる』! 敵の自動攻撃を受け流した！"; return;
-            }
-
-            let dmg = enemy.atk;
-            if (player.name === "宮沢賢治") { dmg = Math.max(1, dmg - 5); abLog += "【能力】『雨ニモマケズ』5軽減！<br>"; }
-            if (player.name === "遠藤周作") { dmg = Math.floor(dmg * 0.85); abLog += "【能力】『沈黙』15%カット！<br>"; }
-
-            if (playerShield > 0) {
-                if (playerShield >= dmg) { playerShield -= dmg; dmgLog = `💥敵の自動攻撃！シールドが ${dmg} 吸収！`; } 
-                else { let p = dmg - playerShield; playerShield = 0; player.hp -= p; dmgLog = `💥シールド破壊！本体に ${p} ダメージ！`; }
-            } else {
-                player.hp -= dmg;
-                dmgLog = `💥⏳敵のリアルタイム自動攻撃！ ${dmg} ダメージ！`;
-            }
-
-            if (player.name === "芥川龍之介") { enemy.hp -= 10; player.hp = Math.min(player.maxHp, player.hp + 10); abLog += "【能力】『蜘蛛の糸』10吸収！<br>"; }
-
-            log.innerHTML = abLog + dmgLog;
-            log.style.color = "#ff4d4d";
-            updateDisplay();
-            checkBattleOver();
-        }
-
-        function updateDisplay() {
-            if (!player || !enemy) return;
-            document.getElementById('p-name').innerText = player.name;
-            document.getElementById('p-hp').innerText = playerShield > 0 ? `${Math.max(0, player.hp)} (+${playerShield})` : Math.max(0, player.hp);
-            document.getElementById('p-atk').innerText = Math.floor(player.atk);
-            document.getElementById('p-ability-name').innerText = `⚡ ${player.abName || '-'}`;
-            
-            document.getElementById('e-name').innerText = enemy.name;
-            document.getElementById('e-hp').innerText = Math.max(0, enemy.hp);
-            document.getElementById('e-atk').innerText = Math.floor(enemy.atk);
-            document.getElementById('e-ability-name').innerText = `⚡ ${enemy.abName || '-'}`;
-        }
-
-        function nextTurn() {
-            if (isGameover) return;
-            
-            // 🛠️ クイズ用の文豪データを安全に取得する
-            const quizSource = bungoData[Math.floor(Math.random() * bungoData.length)];
-            currentQuizAnswer = quizSource.name;
-            document.getElementById('hint-text').innerText = quizSource.hint;
-
-            let choices = [quizSource.name];
-            while (choices.length < 4) {
-                let rName = bungoData[Math.floor(Math.random() * bungoData.length)].name;
-                if (!choices.includes(rName)) choices.push(rName);
-            }
-            choices.sort(() => Math.random() - 0.5);
-
-            const container = document.getElementById('options-container');
-            container.innerHTML = "";
-            choices.forEach(name => {
-                const btn = document.createElement('button');
-                btn.className = "btn";
-                btn.innerText = name;
-                btn.onclick = () => handleAction(name);
-                container.appendChild(btn);
+            const optContainer = document.getElementById('options-container');
+            optContainer.innerHTML = "";
+            q.choices.forEach(c => {
+                const b = document.createElement('button');
+                b.className = "btn";
+                b.innerText = c;
+                b.onclick = () => {
+                    if(c === q.ans) {
+                        enemyHp -= 30;
+                        document.getElementById('log-text').innerText = `⭕正解！相手に30ダメージ！`;
+                    } else {
+                        playerHp -= 20;
+                        document.getElementById('log-text').innerText = `❌不正解…自分に20ダメージ！`;
+                    }
+                    document.getElementById('p-hp').innerText = `HP: ${playerHp}`;
+                    document.getElementById('e-hp').innerText = `HP: ${enemyHp}`;
+                    
+                    if(!checkWinLose()) setTimeout(nextQuiz, 1000);
+                };
+                optContainer.appendChild(b);
             });
         }
 
-        async function handleAction(selectedName) {
-            if (isGameover || !player || !enemy) return;
-            if (isOnlineMode && enemy.atk === 0) { alert("対戦相手がまだ入室していません！"); return; }
-
-            const log = document.getElementById('log-text');
-            let actionLog = "", abLog = "";
-
-            if (player.name === "永井荷風") { enemy.hp -= 5; player.hp = Math.min(player.maxHp, player.hp + 5); abLog += "【能力】『濹東綺譚』敵から5吸収！<br>"; }
-            if (player.name === "星新一") { player.atk = Math.floor(Math.random() * 31) + 15; abLog += `【能力】ATKが ${player.atk} に変動！<br>`; }
-
-            if (selectedName === currentQuizAnswer) {
-                playerStreakCount++;
-                let damage = player.atk;
-
-                if (player.name === "太宰治" && player.hp <= (player.maxHp / 2)) { damage = Math.floor(damage * 1.3); abLog += "【能力】『人間失格』1.3倍！<br>"; }
-                if (player.name === "中島敦" && !isAtsushiTriggered) { damage *= 2; isAtsushiTriggered = true; abLog += "【能力】『月下獣』2倍！<br>"; }
-                if (player.name === "野間宏" && player.hp <= (player.maxHp * 0.3)) { damage = Math.floor(damage * 1.4); abLog += "【能力】『真空地帯』1.4倍！<br>"; }
-                if (player.name === "大江健三郎") { player.atk += 3; abLog += "【能力】『個人的な体験』ATKが3永続上昇！<br>"; }
-
-                enemy.hp -= damage;
-                actionLog = `⭕正解！ ${damage} ダメージを相手に与えた！`;
-
-                if (player.name === "夏目漱石" && Math.random() < 0.25) { player.hp = Math.min(player.maxHp, player.hp + 30); abLog += "【能力】HP30回復！<br>"; }
-                if (player.name === "井上靖" && playerStreakCount % 3 === 0) { player.hp = Math.min(player.maxHp, player.hp + 40); abLog += "【能力】『敦煌』3連正解で40回復！<br>"; }
-                if (player.name === "開高健" && Math.random() < 0.15) { damage *= 2; abLog += "【能力】『輝ける闇』豪快に2倍ダメージ！<br>"; }
-                if (player.name === "鴨長明" && playerStreakCount === 5 && !isChomeiTriggered) { enemy.atk = Math.floor(enemy.atk / 2); isChomeiTriggered = true; abLog += "【能力】『無常観』敵ATK永久半減！<br>"; }
-
-                log.style.color = "#00ffcc";
-            } else {
-                playerStreakCount = 0;
-                let eDmg = enemy.atk;
-                
-                if (player.name === "安部公房") {
-                    actionLog = `❌不正解… 正解は ${currentQuizAnswer}。しかし『砂の女』の効果で反撃を完全無効化！`;
-                } else {
-                    if (player.name === "森鴎外" && Math.random() < 0.20) { actionLog = `❌不正解… しかし『舞姫』で反撃を回避！`; } 
-                    else {
-                        if (player.name === "宮沢賢治") { eDmg = Math.max(1, eDmg - 5); abLog += "【能力】5軽減！<br>"; }
-                        if (player.name === "遠藤周作") { eDmg = Math.floor(eDmg * 0.85); abLog += "【能力】15%カット！<br>"; }
-
-                        if (playerShield > 0) {
-                            if (playerShield >= eDmg) { playerShield -= eDmg; actionLog = `❌不正解… 正解は ${currentQuizAnswer}。反撃をシールドが ${eDmg} 吸収！`; } 
-                            else { let p = eDmg - playerShield; playerShield = 0; player.hp -= p; actionLog = `❌シールド破損！本体に ${p} ダメージ！`; }
-                        } else {
-                            player.hp -= eDmg;
-                            actionLog = `❌不正解… 正解は ${currentQuizAnswer}。誤答ペナルティ反撃で ${eDmg} ダメージ！`;
-                        }
-                        if (player.name === "芥川龍之介") { enemy.hp -= 10; player.hp = Math.min(player.maxHp, player.hp + 10); abLog += "【能力】10吸収！<br>"; }
-                    }
-                }
-                log.style.color = "#ff4d4d";
-            }
-
-            if (player.hp <= 0 && player.name === "三浦哲郎" && !isMishimaTriggered) { player.hp = 40; isMishimaTriggered = true; abLog += "【能力】『忍ぶ川』土壇場でHP40回復！<br>"; }
-            if (player.hp <= 0 && player.name === "浅田次郎" && !isAsadaTriggered) { player.hp = 1; isAsadaTriggered = true; abLog += "【能力】『鉄道員』執念でHP1で耐えた！<br>"; }
-
-            log.innerHTML = abLog + actionLog;
-            updateDisplay();
-
-            if(isOnlineMode) {
-                const actionPayload = playerRole === 'host' ? { h_hp: player.hp, g_hp: enemy.hp } : { g_hp: player.hp, h_hp: enemy.hp };
-                await supabaseFetch(`rooms?id=eq.${currentRoomId}`, { method: "PATCH", body: JSON.stringify(actionPayload) });
-            }
-
-            if (!checkBattleOver()) {
-                setTimeout(nextTurn, 200); 
-            }
-        }
-
-        function checkBattleOver() {
-            if (isGameover || !player || !enemy) return true;
-            const log = document.getElementById('log-text');
-
-            if (enemy.hp <= 0) {
-                isGameover = true; stopTimers();
-                log.innerHTML = `🎉 勝負あり！ ${enemy.name} を撃破！あなたの勝利です！`;
-                log.style.color = "#dab358"; showResetButton(); return true;
-            } else if (player.hp <= 0) {
-                isGameover = true; stopTimers();
-                log.innerHTML = `💀 勝負あり！ ${player.name} が倒れた… あなたの敗北です。`;
-                log.style.color = "#ff4d4d"; showResetButton(); return true;
+        function checkWinLose() {
+            if(isGameover) return true;
+            if(enemyHp <= 0) {
+                isGameover = true; clearInterval(syncTimer);
+                document.getElementById('log-text').innerText = "🎉 あなたの勝ちです！"; return true;
+            } else if(playerHp <= 0) {
+                isGameover = true; clearInterval(syncTimer);
+                document.getElementById('log-text').innerText = "💀 あなたの負けです…"; return true;
             }
             return false;
-        }
-
-        function stopTimers() {
-            if(enemyAttackTimer) clearInterval(enemyAttackTimer);
-            if(onlineSyncTimer) clearInterval(onlineSyncTimer);
-        }
-
-        function showResetButton() {
-            const container = document.getElementById('options-container');
-            container.innerHTML = "";
-            const rBtn = document.createElement('button');
-            rBtn.className = "btn"; rBtn.style.gridColumn = "span 2"; rBtn.style.backgroundColor = "#dab358"; rBtn.style.color = "black";
-            rBtn.innerText = "タイトルに戻る";
-            rBtn.onclick = function() {
-                player = null; enemy = null;
-                document.getElementById('battle-screen').style.display = "none";
-                document.getElementById('rules-screen').style.display = "block";
-            };
-            container.appendChild(rBtn);
         }
     </script>
 </body>
