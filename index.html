@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>国語便覧 文豪バトルカードゲーム（完全オンライン同期版）</title>
+    <title>国語便覧 文豪バトルカードゲーム（フルボリュームオンライン版）</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -91,37 +91,42 @@
             border: 2px solid #dab358;
             padding: 25px;
             border-radius: 10px;
-            max-width: 750px;
+            max-width: 850px;
             width: 100%;
             text-align: center;
             display: none;
         }
         .select-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 12px;
             margin-top: 20px;
-            max-height: 450px;
+            max-height: 500px;
             overflow-y: auto;
+            padding-right: 5px;
         }
+        @media (max-width: 700px) { .select-grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 480px) { .select-grid { grid-template-columns: 1fr; } }
         .select-card-btn {
             background: linear-gradient(135deg, #3a3a3a, #222);
             color: white;
             border: 2px solid #555;
             border-radius: 8px;
-            padding: 10px;
+            padding: 12px;
             cursor: pointer;
             text-align: left;
+            transition: all 0.2s;
         }
+        .select-card-btn:hover { border-color: #dab358; transform: translateY(-2px); }
         .select-name { font-size: 1.1em; font-weight: bold; color: #dab358; }
-        .select-stats { font-size: 0.85em; color: #ccc; margin: 3px 0; }
-        .select-ability { font-size: 0.75em; color: #00ffcc; background-color: #111; padding: 4px; border-radius: 4px; }
+        .select-stats { font-size: 0.85em; color: #ccc; margin: 4px 0; }
+        .select-ability { font-size: 0.75em; color: #00ffcc; background-color: #111; padding: 4px; border-radius: 4px; margin-top: 5px; }
         .online-setup-box {
             background-color: #1a1a1a;
-            border: 1px solid #555;
+            border: 2px solid #00ffcc;
             padding: 15px;
             border-radius: 8px;
-            margin-top: 15px;
+            margin-top: 20px;
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -129,7 +134,7 @@
         }
         .online-input {
             background-color: #333;
-            border: 1px solid #dab358;
+            border: 1px solid #00ffcc;
             color: white;
             padding: 10px;
             border-radius: 5px;
@@ -143,15 +148,15 @@
             background: linear-gradient(135deg, #2c2c2c, #111);
             border: 3px solid #dab358;
             border-radius: 10px;
-            width: 170px;
+            width: 180px;
             padding: 15px;
             text-align: center;
         }
-        .card-name { font-size: 1.1em; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #555; padding-bottom: 5px; }
+        .card-name { font-size: 1.2em; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #555; padding-bottom: 5px; color: #dab358; }
         .stat { font-size: 1em; margin: 5px 0; font-weight: bold; }
         .hp { color: #ff4d4d; }
         .atk { color: #ffb300; }
-        .ability-badge { font-size: 0.75em; color: #00ffcc; margin-top: 8px; border: 1px dashed #00ffcc; padding: 2px; border-radius: 4px; }
+        .ability-badge { font-size: 0.8em; color: #00ffcc; margin-top: 8px; border: 1px dashed #00ffcc; padding: 4px; border-radius: 4px; background: #111; }
         .quiz-container {
             background-color: #2a2a2a;
             border: 2px solid #555;
@@ -169,6 +174,7 @@
             min-height: 60px;
             font-size: 1em;
             text-align: left;
+            line-height: 1.5;
         }
         .options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .btn {
@@ -191,6 +197,9 @@
             background-color: #1a1a1a;
             padding: 10px;
             border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .user-badge {
             font-size: 0.8em;
@@ -221,7 +230,8 @@
 
         <div id="rules-screen" class="rules-container">
             <h2>📜 対戦ルール説明</h2>
-            <p>出題されるお題を読み、正しい文豪の名前を4択から選んでください。</p>
+            <p>出題される作品や解説を読み、正しい文豪の名前を4択から選んでください。</p>
+            <p>オンライン対戦では、正解すると選択した文豪の攻撃力（ATK）分のダメージをリアルタイムに相手に与えます！誤答するとペナルティとしてダメージを受けます。</p>
             <div class="mode-select-btns">
                 <button class="start-nav-btn" onclick="goToSelectScreen(false)">👤 一人で遊ぶ</button>
                 <button class="start-nav-btn online-btn" onclick="goToSelectScreen(true)">🌐 オンライン対戦</button>
@@ -229,7 +239,7 @@
         </div>
 
         <div id="character-select" class="select-container">
-            <h2 id="select-title">出陣する文豪を選択</h2>
+            <h2 id="select-title">出陣する文豪を選択（全20名）</h2>
             <div class="select-grid" id="select-grid-container"></div>
             
             <div id="online-setup" class="online-setup-box" style="display: none;">
@@ -245,17 +255,17 @@
         <div id="battle-screen" class="battle-container">
             <div class="battle-field">
                 <div class="card">
-                    <div id="p-label" style="font-size:0.8em; color:#aaa;">あなた</div>
+                    <div style="font-size:0.8em; color:#aaa;">あなた</div>
                     <div class="card-name" id="p-name">-</div>
-                    <div class="stat hp" id="p-hp-display">HP: 200</div>
-                    <div class="stat atk" id="p-atk-display">ATK: 30</div>
+                    <div class="stat hp" id="p-hp-display">HP: ---</div>
+                    <div class="stat atk" id="p-atk-display">ATK: --</div>
                     <div class="ability-badge" id="p-ability-name">-</div>
                 </div>
                 <div style="font-size: 2em; align-self: center; color: #dab358;">VS</div>
                 <div class="card">
-                    <div id="e-label" style="font-size:0.8em; color:#aaa;">相手</div>
+                    <div style="font-size:0.8em; color:#aaa;">相手</div>
                     <div class="card-name" id="e-name">待機中...</div>
-                    <div class="stat hp" id="e-hp-display">HP: 200</div>
+                    <div class="stat hp" id="e-hp-display">HP: ---</div>
                     <div class="stat atk" id="e-atk-display">ATK: --</div>
                     <div class="ability-badge" id="e-ability-name">-</div>
                 </div>
@@ -274,7 +284,6 @@
         let currentAuthMode = "login"; 
         let loginUserToken = "";
 
-        // 🔐 認証
         async function handleAuth() {
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
@@ -315,12 +324,87 @@
             return fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, { ...options, headers: { ...headers, ...options.headers } });
         }
 
-        // 📊 文豪データ
+        // 📊 元の文豪データ（全20名）を完全復元
         const bungoData = [
-            { name: "太宰治", hp: 240, atk: 35, abName: "人間失格", hint: "『人間失格』『走れメロス』の著者。心中未遂を繰り返し、玉川上水にて入水。" },
-            { name: "夏目漱石", hp: 360, atk: 25, abName: "こころ", hint: "『吾輩は猫である』『こころ』の著者。千円札の肖像でも有名。" },
-            { name: "芥川龍之介", hp: 200, atk: 40, abName: "蜘蛛の糸", hint: "『羅生門』『蜘蛛の糸』の著者。「ぼんやりとした不安」を理由に自ら命を絶った天才短編作家。" },
-            { name: "中島敦", hp: 300, atk: 30, abName: "山月記", hint: "『山月記』の著者。自尊心と羞恥心によって虎に変貌してしまう男を描いた。" }
+            { name: "夏目漱石", hp: 350, atk: 25, abName: "吾輩は猫である" },
+            { name: "太宰治", hp: 230, atk: 40, abName: "人間失格" },
+            { name: "芥川龍之介", hp: 210, atk: 45, abName: "羅生門" },
+            { name: "中島敦", hp: 280, atk: 35, abName: "山月記" },
+            { name: "森鴎外", hp: 330, atk: 28, abName: "舞姫" },
+            { name: "宮沢賢治", hp: 300, atk: 30, abName: "銀河鉄道の夜" },
+            { name: "川端康成", hp: 240, atk: 38, abName: "雪国" },
+            { name: "三島由紀夫", hp: 260, atk: 42, abName: "金閣寺" },
+            { name: "谷崎潤一郎", hp: 310, atk: 32, abName: "細雪" },
+            { name: "志賀直哉", hp: 340, atk: 26, abName: "暗夜行路" },
+            { name: "樋口一葉", hp: 200, atk: 43, abName: "たけくらべ" },
+            { name: "与謝野晶子", hp: 250, atk: 37, abName: "みだれ髪" },
+            { name: "島崎藤村", hp: 290, atk: 33, abName: "破壊" },
+            { name: "小林多喜二", hp: 220, atk: 41, abName: "蟹工船" },
+            { name: "江戸川乱歩", hp: 270, atk: 36, abName: "人間椅子" },
+            { name: "萩原朔太郎", hp: 215, atk: 39, abName: "月に吠える" },
+            { name: "梶井基次郎", hp: 190, atk: 48, abName: "檸檬" },
+            { name: "泉鏡花", hp: 245, atk: 34, abName: "高野聖" },
+            { name: "坪内逍遥", hp: 360, atk: 22, abName: "小説神髄" },
+            { name: "二葉亭四迷", hp: 320, atk: 27, abName: "浮雲" }
+        ];
+
+        // 📝 元のクイズデータ（全55問）を完全復元
+        const quizData = [
+            { hint: "『吾輩は猫である』『こころ』の著者。近代知識人の苦悩を描いた。", ans: "夏目漱石" },
+            { hint: "『人間失格』『走れメロス』の著者。無頼派の代表作家。", ans: "太宰治" },
+            { hint: "『羅生門』『蜘蛛の糸』の著者。理知的な短編の名手。", ans: "芥川龍之介" },
+            { hint: "『山月記』『李陵』の著者。漢文調の格調高い文体が特徴。", ans: "中島敦" },
+            { hint: "『舞姫』『高瀬舟』の著者。軍医としても活躍した文豪。", ans: "森鴎外" },
+            { hint: "『銀河鉄道の夜』『注文の多い料理店』の著者。岩手県出身の詩人・童話作家。", ans: "宮沢賢治" },
+            { hint: "『雪国』『伊豆の踊子』の著者。日本初のノーベル文学賞を受賞。", ans: "川端康成" },
+            { hint: "『金閣寺』『潮騒』の著者。割腹自殺を遂げた三島由紀夫の本名は平岡公威。", ans: "三島由紀夫" },
+            { hint: "『細雪』『痴人の愛』の著者。耽美主義の巨匠。", ans: "谷崎潤一郎" },
+            { hint: "『暗夜行路』『城の崎にて』の著者。「小説の神様」と称された白樺派の作家。", ans: "志賀直哉" },
+            { hint: "『たけくらべ』『にごりえ』の著者。五千円札の肖像画でおなじみ。", ans: "樋口一葉" },
+            { hint: "歌集『みだれ髪』の著者。「君死にたまふことなかれ」で知られる情熱の歌人。", ans: "与謝野晶子" },
+            { hint: "『破戒』『夜明け前』の著者。日本の自然主義文学を確立した。", ans: "島崎藤村" },
+            { hint: "『蟹工船』『党生活者』の著者。プロレタリア文学の旗手。", ans: "小林多喜二" },
+            { hint: "『人間の椅子』『怪人二十面相』の著者。日本推理小説の開拓者。", ans: "江戸川乱歩" },
+            { hint: "詩集『月に吠える』『青猫』の著者。日本の近代口語自由詩を完成させた。", ans: "萩原朔太郎" },
+            { hint: "『檸檬』の著者。丸善の書棚に爆弾に見立てた果物を置く描写が有名。", ans: "梶井基次郎" },
+            { hint: "『高野聖』『歌行燈』の著者。観念小説や幻想文学の先駆者。", ans: "泉鏡花" },
+            { hint: "『小説神髄』『当世書生気質』の著者。写実主義を提唱した。", ans: "坪内逍遥" },
+            { hint: "『浮雲』の著者。言文一致体の先駆者として日本の近代小説の祖となった。", ans: "二葉亭四迷" },
+            { hint: "『武蔵野』の著者。自然を愛し、叙情的な国木田独歩の代表作。", ans: "国木田独歩" },
+            { hint: "『不如帰（ほととぎす）』の著者。「人間至る処青山あり」でも知られる徳冨蘆花の本名。", ans: "徳冨蘆花" },
+            { hint: "『多情多恨』『金色夜叉』の著者。紅葉・露伴の「紅露時代」の片翼。", ans: "尾崎紅葉" },
+            { hint: "『五重塔』の著者。尾崎紅葉と並び「紅露時代」と称された幸田露伴。", ans: "幸田露伴" },
+            { hint: "『高野聖』の作者で、明治から大正にかけて浪漫主義的な幻想小説を多く残した文豪。", ans: "泉鏡花" },
+            { hint: "『みだれ髪』で知られ、日露戦争に赴く弟を想う詩「君死にたまふことなかれ」を発表した女性詩人。", ans: "与謝野晶子" },
+            { hint: "『一握の砂』『悲しき玩具』を残し、26歳の若さで没した石川啄木の代表的な文芸ジャンルは短歌。", ans: "石川啄木" },
+            { hint: "『智恵子抄』『道程』の著者。彫刻家としても著名な詩人。", ans: "高村光太郎" },
+            { hint: "『汚れつちまつた悲しみに……』などの詩で知られる大正・昭和期の日本の詩人。", ans: "中原中也" },
+            { hint: "『それから』『門』『三四郎』などの前期三部作を手掛けた明治の代表的文豪。", ans: "夏目漱石" },
+            { hint: "『彼岸過迄』『行人』『こころ』などの後期三部作を手掛けた文豪。", ans: "夏目漱石" },
+            { hint: "『晩年』『斜陽』『ヴィヨンの妻』など、没落していく登場人物を描くのが得意だった無頼派作家。", ans: "太宰治" },
+            { hint: "『地獄変』『河童』『歯車』の著者。大正文学の芥川賞に名を残す文豪。", ans: "芥川龍之介" },
+            { hint: "『春琴抄』『陰翳礼讃』の著者。日本の伝統的な美や、悪魔主義的、官能的な世界を描いた。", ans: "谷崎潤一郎" },
+            { hint: "『雁』『阿部一族』の著者。翻訳家や評論家としても一流だった明治の巨頭。", ans: "森鴎外" },
+            { hint: "『風の又三郎』『グスコーブドリの伝記』の著者。独自の宗教観と科学の目を持っていた。", ans: "宮沢賢治" },
+            { hint: "『潮騒』『仮面の告白』の著者。ノーベル賞候補に何度も上った美学の作家。", ans: "三島由紀夫" },
+            { hint: "『若菜集』でロマン主義詩人として出発し、後に『破戒』で自然主義に転じた文豪。", ans: "島崎藤村" },
+            { hint: "『和解』『小僧の神様』の著者。志賀直哉が所属していた文芸雑誌派閥は白樺派。", ans: "志賀直哉" },
+            { hint: "『放浪記』『浮雲』の著者。独自のたくましい女性像を描き続けた昭和の女性作家。", ans: "林芙美子" },
+            { hint: "『縮図』『徳田秋声伝』の著者。自然主義文学のなかで最も客観的な描写を得意とした。", ans: "徳田秋声" },
+            { hint: "『蒲団』の著者。自らの私生活を告白する形式（私小説）の源流となった自然主義作家。", ans: "田山花袋" },
+            { hint: "『青い山脈』『石中先生行状記』の著者。戦後の明るい民主主義文学をリードした。", ans: "石坂洋次郎" },
+            { hint: "『恩讐の彼方に』『父帰る』の著者。文藝春秋を創設し芥川賞・直木賞を設立した。", ans: "菊池寛" },
+            { hint: "『友情』『その妹』の著者。白樺派の中心人物で人道主義的な思想を持っていた。", ans: "武者小路実篤" },
+            { hint: "『風立ちぬ』『菜穂子』の著者。堀辰雄が師事した、精神的な深みを持つ文豪。", ans: "堀辰雄" },
+            { hint: "『氷壁』『敦煌』『天平の甍』の著者。歴史小説や近代の山岳小説で知られる。", ans: "井上靖" },
+            { hint: "『太陽の季節』の著者。戦後日本の若者の既成モラルへの反抗を描き「太陽族」と呼ばれた。", ans: "石原慎太郎" },
+            { hint: "『山の音』『千羽鶴』の著者。新感覚派の代表であり、幽玄の美の世界を描いた。", ans: "川端康成" },
+            { hint: "『斜陽』がベストセラーとなり、没落していく上流階級の人々を指す言葉の語源となった文豪。", ans: "太宰治" },
+            { hint: "『小説の神様』と慕われ、極限まで無駄を削ぎ落とした簡潔で力強い文体を持つ作家。", ans: "志賀直哉" },
+            { hint: "『藪の中』の著者。一つの事件を巡り複数の目撃者が矛盾した証言をする、現代でも多用されるプロットの生みの親。", ans: "芥川龍之介" },
+            { hint: "『坊っちゃん』の舞台であり、夏目漱石自身が英語教師として赴任していた愛媛県の都市。", ans: "松山市" },
+            { hint: "『五重塔』を著し、当時の幸田露伴の文学的ポジションを尾崎紅葉と並べて「○露時代」という。", ans: "紅" },
+            { hint: "『細雪』の舞台。谷崎潤一郎が関東大震災を機に移住し、多大な影響を受けた日本の地域。", ans: "関西" }
         ];
 
         let player = null, enemy = null, isOnlineMode = false, currentRoomId = "", playerRole = "", isGameover = false;
@@ -341,7 +425,11 @@
                 const btn = document.createElement('button');
                 btn.className = "select-card-btn";
                 if(isOnlineMode && selectedBungoIndex === index) btn.style.borderColor = "#00ffcc";
-                btn.innerHTML = `<div class="select-name">${bungo.name}</div><div class="select-stats">HP: ${bungo.hp} / ATK: ${bungo.atk}</div>`;
+                btn.innerHTML = `
+                    <div class="select-name">${bungo.name}</div>
+                    <div class="select-stats">HP: ${bungo.hp} / ATK: ${bungo.atk}</div>
+                    <div class="select-ability">⚡ ${bungo.abName}</div>
+                `;
                 btn.onclick = () => {
                     selectedBungoIndex = index;
                     if(!isOnlineMode) startOfflineGame(index);
@@ -370,10 +458,8 @@
 
             document.getElementById('character-select').style.display = "none";
             document.getElementById('battle-screen').style.display = "flex";
-            document.getElementById('log-text').innerText = "接続中...";
+            document.getElementById('log-text').innerText = "対戦相手の入室を待っています...";
 
-            // ⚠️ 互換性トリック: さっき作った 5つのカラム(h_name, h_ab, g_name, g_ab, last_action) だけで全てを通信！
-            // h_ab と g_ab に「現在のHP_攻撃力」を文字として合体させて滑り込ませます！
             if(role === 'host') {
                 await supabaseFetch(`rooms?id=eq.${currentRoomId}`, { method: "DELETE" });
                 await supabaseFetch("rooms", {
@@ -381,17 +467,17 @@
                     body: JSON.stringify({
                         id: currentRoomId,
                         h_name: player.name,
-                        h_ab: `${player.hp}_${player.atk}_${player.abName}`, // HP、攻撃力、技名を合体
+                        h_ab: `${player.hp}_${player.atk}_${player.abName}`,
                         g_name: "待機中...",
                         g_ab: "0_0_-",
-                        last_action: "正常稼働"
+                        last_action: "ホスト入室"
                     })
                 });
                 enemy = { name: "待機中...", hp: 100, atk: 0, abName: "-" };
             } else {
                 const res = await supabaseFetch(`rooms?id=eq.${currentRoomId}`, { method: "GET" });
                 const rooms = await res.json();
-                if(!rooms || rooms.length === 0) { alert("部屋がありません"); location.reload(); return; }
+                if(!rooms || rooms.length === 0) { alert("部屋が見つかりません"); location.reload(); return; }
                 
                 const room = rooms[0];
                 const hData = room.h_ab.split('_');
@@ -404,7 +490,7 @@
                         h_name: room.h_name, h_ab: room.h_ab,
                         g_name: player.name,
                         g_ab: `${player.hp}_${player.atk}_${player.abName}`,
-                        last_action: "ゲスト参入"
+                        last_action: "ゲスト入室"
                     }),
                     headers: { "Prefer": "resolution=merge-duplicates" }
                 });
@@ -412,25 +498,22 @@
 
             updateDisplay();
             nextTurn();
-            onlineSyncTimer = setInterval(syncOnlineData, 1200); // リアルタイム同期
+            onlineSyncTimer = setInterval(syncOnlineData, 1200); 
         }
 
-        // 🔄 オンラインデータの超リアルタイム同期
+        // 🔄 リアルタイムHP・攻撃同期
         async function syncOnlineData() {
             if(isGameover || !isOnlineMode) return;
 
-            // 自分の最新HPをSupabaseに即座に送信
             const myStatusStr = `${player.hp}_${player.atk}_${player.abName}`;
             const payload = playerRole === 'host' ? { h_ab: myStatusStr } : { g_ab: myStatusStr };
             
-            // 相手がHPを減らしてきた（last_actionにダメージが刻まれた）かを確認するため、まずGET
             const res = await supabaseFetch(`rooms?id=eq.${currentRoomId}`, { method: "GET" });
             const rooms = await res.json();
             
             if(rooms && rooms.length > 0) {
                 const room = rooms[0];
                 
-                // 相手からの攻撃が届いているかチェックして自分のHPを同期
                 if(playerRole === 'host') {
                     const gData = room.g_ab.split('_');
                     if(room.g_name !== "待機中...") {
@@ -439,7 +522,6 @@
                         enemy.atk = parseInt(gData[1]);
                         enemy.abName = gData[2];
                     }
-                    // 相手から自分への攻撃を検知したらHPを反映
                     const hData = room.h_ab.split('_');
                     player.hp = parseInt(hData[0]);
                 } else {
@@ -449,15 +531,12 @@
                     enemy.atk = parseInt(hData[1]);
                     enemy.abName = hData[2];
                     
-                    // 相手から自分への攻撃を検知したらHPを反映
                     const gData = room.g_ab.split('_');
                     player.hp = parseInt(gData[0]);
                 }
             }
 
-            // 自分のHPを送信
             await supabaseFetch(`rooms?id=eq.${currentRoomId}`, { method: "PATCH", body: JSON.stringify(payload) });
-
             updateDisplay();
             checkBattleOver();
         }
@@ -477,17 +556,16 @@
 
         function nextTurn() {
             if(isGameover) return;
-            currentQuiz = bungoData[Math.floor(Math.random() * bungoData.length)];
+            currentQuiz = quizData[Math.floor(Math.random() * quizData.length)];
             document.getElementById('hint-text').innerText = currentQuiz.hint;
 
             const container = document.getElementById('options-container');
             container.innerHTML = "";
             
-            // クイズの選択肢をシャッフル生成
-            let choices = [currentQuiz.name];
+            let choices = [currentQuiz.ans];
             while(choices.length < 4) {
-                let rName = bungoData[Math.floor(Math.random() * bungoData.length)].name;
-                if(!choices.includes(rName)) choices.push(rName);
+                let rBungo = bungoData[Math.floor(Math.random() * bungoData.length)];
+                if(!choices.includes(rBungo.name)) choices.push(rBungo.name);
             }
             choices.sort(() => Math.random() - 0.5);
 
@@ -500,42 +578,41 @@
             });
         }
 
-        // ⚔️ クイズに答えた時のダメージ処理
+        // ⚔️ ダメージ処理ロジックの完全連動
         async function handleAnswer(selectedName) {
             if(isGameover) return;
             if(isOnlineMode && enemy.hp <= 0) return;
 
             const log = document.getElementById('log-text');
 
-            if(selectedName === currentQuiz.name) {
-                // ⭕正解！相手のHPを減らす！
+            if(selectedName === currentQuiz.ans) {
+                // ⭕正解！相手のHPを直接減らして同期パケットを飛ばす！
                 enemy.hp = Math.max(0, enemy.hp - player.atk);
                 log.innerText = `⭕正解！相手の ${enemy.name} に ${player.atk} ダメージ！`;
                 log.style.color = "#00ffcc";
 
-                // オンラインの場合は「相手のHPを減らした状態」を即座にSupabaseに送りつける！
                 if(isOnlineMode) {
                     const enemyStatusStr = `${enemy.hp}_${enemy.atk}_${enemy.abName}`;
-                    const payload = playerRole === 'host' ? { g_ab: enemyStatusStr, last_action: "H攻撃" } : { h_ab: enemyStatusStr, last_action: "G攻撃" };
+                    const payload = playerRole === 'host' ? { g_ab: enemyStatusStr, last_action: "H_ATTACK" } : { h_ab: enemyStatusStr, last_action: "G_ATTACK" };
                     await supabaseFetch(`rooms?id=eq.${currentRoomId}`, { method: "PATCH", body: JSON.stringify(payload) });
                 }
             } else {
-                // ❌不正解！ペナルティで自分がダメージを受ける！
-                let penaltyDmg = isOnlineMode ? (enemy.atk || 25) : enemy.atk;
+                // ❌不正解！ペナルティ（誤答反撃ダメージ）
+                let penaltyDmg = isOnlineMode ? (enemy.atk || 30) : 30;
                 player.hp = Math.max(0, player.hp - penaltyDmg);
-                log.innerText = `❌不正解… 正解は【${currentQuiz.name}】。誤答反撃で ${penaltyDmg} ダメージを受けた！`;
+                log.innerText = `❌不正解… 正解は【${currentQuiz.ans}】。誤答反撃で ${penaltyDmg} ダメージを受けた！`;
                 log.style.color = "#ff4d4d";
 
                 if(isOnlineMode) {
                     const myStatusStr = `${player.hp}_${player.atk}_${player.abName}`;
-                    const payload = playerRole === 'host' ? { h_ab: myStatusStr } : { g_ab: myStatusStr };
+                    const payload = playerRole === 'host' ? { h_ab: myStatusStr, last_action: "H_MISS" } : { g_ab: myStatusStr, last_action: "G_MISS" };
                     await supabaseFetch(`rooms?id=eq.${currentRoomId}`, { method: "PATCH", body: JSON.stringify(payload) });
                 }
             }
 
             updateDisplay();
             if(!checkBattleOver()) {
-                setTimeout(nextTurn, 1200);
+                setTimeout(nextTurn, 1400);
             }
         }
 
@@ -545,11 +622,11 @@
 
             if(enemy.hp <= 0 && enemy.name !== "待機中...") {
                 isGameover = true; clearInterval(onlineSyncTimer);
-                log.innerText = `🎉 勝負あり！対戦相手を撃破しました！あなたの勝利です！`;
+                log.innerText = `🎉 勝負あり！対戦相手の ${enemy.name} を撃破しました！あなたの勝利です！`;
                 log.style.color = "#dab358"; showResetButton(); return true;
             } else if(player.hp <= 0) {
                 isGameover = true; clearInterval(onlineSyncTimer);
-                log.innerText = `💀 勝負あり！あなたの文豪が倒れました… 敗北です。`;
+                log.innerText = `💀 勝負あり！あなたの ${player.name} は倒れました… 敗北です。`;
                 log.style.color = "#ff4d4d"; showResetButton(); return true;
             }
             return false;
