@@ -25,8 +25,6 @@
             margin-bottom: 20px;
             font-size: 0.9em;
         }
-
-        /* ルール説明画面のスタイル */
         .rules-container {
             background-color: #2a2a2a;
             border: 2px solid #dab358;
@@ -41,6 +39,9 @@
             text-align: left;
             line-height: 1.6;
             font-size: 0.95em;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
         }
         .rules-content h3 {
             color: #dab358;
@@ -51,17 +52,8 @@
         .rules-content ul {
             padding-left: 20px;
         }
-        .ability-list-item {
-            margin-bottom: 6px;
-        }
-        .highlight-text {
-            color: #00ffcc;
-            font-weight: bold;
-        }
-        .danger-text {
-            color: #ff4d4d;
-            font-weight: bold;
-        }
+        .highlight-text { color: #00ffcc; font-weight: bold; }
+        .danger-text { color: #ff4d4d; font-weight: bold; }
         .start-nav-btn {
             background: linear-gradient(135deg, #dab358, #b08b35);
             color: black;
@@ -74,20 +66,13 @@
             margin-top: 25px;
             width: 100%;
             box-shadow: 0 4px 10px rgba(218, 179, 88, 0.3);
-            transition: all 0.2s;
         }
-        .start-nav-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(218, 179, 88, 0.5);
-        }
-
-        /* キャラクター選択画面のスタイル */
         .select-container {
             background-color: #2a2a2a;
             border: 2px solid #dab358;
             padding: 25px;
             border-radius: 10px;
-            max-width: 650px;
+            max-width: 750px;
             width: 100%;
             text-align: center;
             box-shadow: 0 8px 16px rgba(0,0,0,0.5);
@@ -96,94 +81,42 @@
         .select-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            gap: 12px;
             margin-top: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 5px;
         }
         .select-card-btn {
             background: linear-gradient(135deg, #3a3a3a, #222);
             color: white;
             border: 2px solid #555;
             border-radius: 8px;
-            padding: 12px;
+            padding: 10px;
             cursor: pointer;
-            text-align: center;
-            transition: all 0.2s;
+            text-align: left;
         }
-        .select-card-btn:hover {
-            border-color: #dab358;
-            transform: translateY(-2px);
-        }
-        .select-name {
-            font-size: 1.1em;
-            font-weight: bold;
-            color: #dab358;
-            margin-bottom: 5px;
-        }
-        .select-stats {
-            font-size: 0.85em;
-            color: #ccc;
-            margin-bottom: 5px;
-        }
-        .select-ability {
-            font-size: 0.75em;
-            color: #00ffcc;
-            background-color: #111;
-            padding: 4px;
-            border-radius: 4px;
-            border: 1px solid #333;
-        }
-
-        /* バトルフィールドのレイアウト */
-        .battle-container {
-            display: none; 
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-        }
-        .battle-field {
-            display: flex;
-            justify-content: space-around;
-            width: 100%;
-            max-width: 700px;
-            margin-bottom: 20px;
-        }
+        .select-card-btn:hover { border-color: #dab358; }
+        .select-name { font-size: 1.1em; font-weight: bold; color: #dab358; }
+        .select-stats { font-size: 0.85em; color: #ccc; margin: 3px 0; }
+        .select-ability { font-size: 0.75em; color: #00ffcc; background-color: #111; padding: 4px; border-radius: 4px; }
+        .battle-container { display: none; flex-direction: column; align-items: center; width: 100%; }
+        .battle-field { display: flex; justify-content: space-around; width: 100%; max-width: 700px; margin-bottom: 20px; }
         .card {
             background: linear-gradient(135deg, #2c2c2c, #111);
             border: 3px solid #dab358;
             border-radius: 10px;
-            width: 140px;
+            width: 150px;
             padding: 15px;
             text-align: center;
             box-shadow: 0 8px 16px rgba(0,0,0,0.5);
-            position: relative;
         }
-        .card.enemy {
-            border-color: #c93a3a;
-        }
-        .card-name {
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-bottom: 10px;
-            border-bottom: 1px solid #555;
-            padding-bottom: 5px;
-        }
-        .stat {
-            font-size: 1em;
-            margin: 5px 0;
-            font-weight: bold;
-        }
+        .card.enemy { border-color: #c93a3a; }
+        .card-name { font-size: 1.1em; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #555; padding-bottom: 5px; }
+        .stat { font-size: 1em; margin: 5px 0; font-weight: bold; }
         .hp { color: #ff4d4d; }
         .atk { color: #ffb300; }
-        .ability-badge {
-            font-size: 0.75em;
-            color: #00ffcc;
-            margin-top: 8px;
-            border: 1px dashed #00ffcc;
-            padding: 2px;
-            border-radius: 4px;
-        }
-
-        /* クイズエリア */
+        .ability-badge { font-size: 0.75em; color: #00ffcc; margin-top: 8px; border: 1px dashed #00ffcc; padding: 2px; border-radius: 4px; }
         .quiz-container {
             background-color: #2a2a2a;
             border: 2px solid #555;
@@ -192,7 +125,6 @@
             max-width: 600px;
             width: 100%;
             text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
         .hint-box {
             background-color: #222;
@@ -200,15 +132,11 @@
             padding: 15px;
             margin-bottom: 20px;
             min-height: 60px;
-            font-size: 1.1em;
+            font-size: 1em;
             line-height: 1.5;
             text-align: left;
         }
-        .options {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
+        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .btn {
             background: #3a3a3a;
             color: white;
@@ -218,17 +146,12 @@
             cursor: pointer;
             font-size: 1em;
             font-weight: bold;
-            transition: all 0.2s;
         }
-        .btn:hover {
-            background-color: #dab358;
-            color: black;
-            border-color: #dab358;
-        }
+        .btn:hover { background-color: #dab358; color: black; border-color: #dab358; }
         .log {
             margin-top: 15px;
             font-weight: bold;
-            font-size: 1.05em;
+            font-size: 1em;
             min-height: 70px;
             color: #00ffcc;
             line-height: 1.4;
@@ -244,92 +167,97 @@
     <p class="subtitle">正しい知識を選び、特殊能力で勝利を掴め！</p>
 
     <div id="rules-screen" class="rules-container">
-        <h2>📜 对戦ルール説明</h2>
+        <h2>📜 対戦ルール説明</h2>
         <div class="rules-content">
             <h3>⚔️ 基本ルール</h3>
             <ul>
-                <li>出題される文学的特徴やエピソード（お題）を読み、正しい文豪の名前を4択から選んでください。</li>
-                <li><span class="highlight-text">正解時</span>：自分の文豪が持つATK（攻撃力）で相手にダメージを与えます。</li>
-                <li><span class="danger-text">⚠️ 敵のリアルタイム自動攻撃</span>：敵の文豪はクイズに関係なく、<span class="danger-text">4.5秒ごとに自動であなたを攻撃</span>してきます！のんびり考えているとやられます！</li>
-                <li><span class="danger-text">不正解時</span>：ペナルティとして、即座に敵から手痛い反撃ダメージを受けます。</li>
-                <li>先に相手のHPを0にした方の勝利となります。</li>
-            </ul>
-
-            <h3>⚡ 文豪たちの特殊能力</h3>
-            <ul>
-                <li class="ability-list-item"><strong>太宰治【人間失格】</strong>: HP半分以下になると、自身のATKが1.3倍に跳ね上がる。</li>
-                <li class="ability-list-item"><strong>夏目漱石【月が綺麗ですね】</strong>: クイズ正解時、25%の確率で自身のHPを30回復する。</li>
-                <li class="ability-list-item"><strong>芥川龍之介【蜘蛛の糸】</strong>: 敵からダメージを受けた際（自動攻撃含む）、敵のHPを10奪って自分を回復する。</li>
-                <li class="ability-list-item"><strong>中島敦【月下獣】</strong>: 最初の正解時のみ、与えるダメージが2倍になる。</li>
-                <li class="ability-list-item"><strong>森鴎外【舞姫】</strong>: 20%の確率で、敵からのあらゆる攻撃を完全に見切って回避する。</li>
-                <li class="ability-list-item"><strong>宮沢賢治【雨ニモマケズ】</strong>: 受けるダメージを常に「5」軽減する。</li>
-                <li class="ability-list-item"><strong>鴨長明【無常観】</strong>: クイズに<span class="highlight-text">5問連続正解</span>すると、敵のATKを永久に半減させる。</li>
-                <li class="ability-list-item"><strong>重松清【親心のバリア】</strong>: バトル開始時、敵の攻撃を防ぐ耐久値40のシールドを張る。</li>
-                <li class="ability-list-item"><strong>鷺沢萠【駆ける少年の衝動】</strong>: 毎ターン（クイズ解答時）、敵のHPに10の固定ダメージを与える。</li>
+                <li>出題されるお題を読み、正しい文豪の名前を4択から選んでください。</li>
+                <li><span class="highlight-text">正解時</span>：自身のATKで相手にダメージを与えます。</li>
+                <li><span class="danger-text">⚠️ 敵のリアルタイム自動攻撃</span>：敵はクイズに関係なく、<span class="danger-text">4.5秒ごとに自動攻撃</span>してきます！</li>
+                <li><span class="danger-text">不正解時</span>：ペナルティとして、即座に敵から反撃ダメージを受けます。</li>
             </ul>
         </div>
         <button class="start-nav-btn" onclick="goToSelectScreen()">ゲームスタート（文豪を選ぶ）</button>
     </div>
 
     <div id="character-select" class="select-container">
-        <h2>あなたの出陣する文豪（デッキ）を選べ！</h2>
+        <h2>出陣する文豪を選択（総勢29名）</h2>
         <div class="select-grid" id="select-grid-container"></div>
     </div>
 
     <div id="battle-screen" class="battle-container">
         <div class="battle-field">
             <div class="card">
-                <div style="font-size:0.8em; color:#aaa;">味方の文豪</div>
+                <div style="font-size:0.8em; color:#aaa;">味方</div>
                 <div class="card-name" id="p-name">???</div>
                 <div class="stat hp">HP: <span id="p-hp">0</span></div>
                 <div class="stat atk">ATK: <span id="p-atk">0</span></div>
-                <div class="ability-badge" id="p-ability-name">能力未定</div>
+                <div class="ability-badge" id="p-ability-name">-</div>
             </div>
-
             <div style="font-size: 2em; align-self: center; color: #dab358;">VS</div>
-
             <div class="card enemy">
-                <div style="font-size:0.8em; color:#aaa;">敵の文豪</div>
+                <div style="font-size:0.8em; color:#aaa;">敵</div>
                 <div class="card-name" id="e-name">???</div>
                 <div class="stat hp">HP: <span id="e-hp">0</span></div>
                 <div class="stat atk">ATK: <span id="e-atk">0</span></div>
-                <div class="ability-badge" id="e-ability-name">能力未定</div>
+                <div class="ability-badge" id="e-ability-name">-</div>
             </div>
         </div>
-
         <div class="quiz-container">
-            <div style="font-size: 0.9em; color: #aaa; margin-bottom: 5px; text-align: left;">【技の発動条件（お題）】</div>
             <div class="hint-box" id="hint-text"></div>
-            
             <div class="options" id="options-container"></div>
             <div class="log" id="log-text"></div>
         </div>
     </div>
 
     <script>
-        // 文豪データ
+        // クイズ問題用：全35名のデータ
         const bungoData = [
-            { name: "太宰治", hp: 240, maxHp: 240, atk: 35, hint: "「恥の多い生涯を送って来ました」で始まる『人間失格』の著者。心中未遂を繰り返した。", abName: "人間失格", abDesc: "HP半分以下でATK1.3倍" },
-            { name: "夏目漱石", hp: 360, maxHp: 360, atk: 25, hint: "イギリス留学で神経衰弱になる。『吾輩は猫である』で一躍有名に。「月が綺麗ですね」の逸話も。", abName: "月が綺麗ですね", abDesc: "正解時25%の確率でHP30回復" },
-            { name: "芥川龍之介", hp: 200, maxHp: 200, atk: 40, hint: "『羅生門』『鼻』の著者。ぼんやりとした不安を理由に35歳で早世。彼の名を冠した文学賞がある。", abName: "蜘蛛の糸", abDesc: "ダメージを受けた時、敵HPを10奪う" },
-            { name: "中島敦", hp: 300, maxHp: 300, atk: 30, hint: "『山月記』の著者。喘息のため33歳で早世。国語の教科書で虎になる男といえばこの人。", abName: "月下獣", abDesc: "最初の正解時のみ攻撃力2倍" },
-            { name: "森鴎外", hp: 320, maxHp: 320, atk: 28, hint: "小説家でありながら、本職は「軍医（陸軍軍医総監）」。代表作は『舞姫』『高瀬舟』。", abName: "舞姫", abDesc: "20%の確率で敵攻撃を完全回避" },
-            { name: "宮沢賢治", hp: 280, maxHp: 280, atk: 32, hint: "岩手県出身。農業指導をしながら『銀河鉄道の夜』や『注文の多い料理店』を執筆した。", abName: "雨ニモマケズ", abDesc: "受けるダメージを常に5軽減" },
-            { name: "鴨長明", hp: 220, maxHp: 220, atk: 38, hint: "「ゆく河の流れは絶えずして、しかももとの水にあらず」で始まる鎌倉時代の随筆『方丈記』の著者。", abName: "無常観", abDesc: "5問連続正解で敵ATKを永久半減" },
-            { name: "重松清", hp: 320, maxHp: 320, atk: 26, hint: "現代の作家。いじめや家族、思春期の葛藤をテーマにした『ナイフ』『エイジ』『とんび』などで知られる。", abName: "親心のバリア", abDesc: "開始時に耐久値40のシールド" },
-            { name: "鷺沢萠", hp: 260, maxHp: 260, atk: 34, hint: "現役女子大生作家として注目され『川べりの道』や『駆ける少年』を発表。若者の孤独を瑞々しく描いた。", abName: "駆ける少年の衝動", abDesc: "毎ターン終了時敵に10ダメージ" }
+            { name: "太宰治", hp: 240, maxHp: 240, atk: 35, hint: "『人間失格』『走れメロス』の著者。心中未遂を繰り返し、39歳で玉川上水にて入水。", abName: "人間失格", abDesc: "HP半分以下でATK1.3倍", isPlayable: true },
+            { name: "夏目漱石", hp: 360, maxHp: 360, atk: 25, hint: "『吾輩は猫である』『こころ』の著者。千円札の肖像でも有名。イギリス留学で神経衰弱に。", abName: "月が綺麗ですね", abDesc: "正解時25%でHP30回復", isPlayable: true },
+            { name: "芥川龍之介", hp: 200, maxHp: 200, atk: 40, hint: "『羅生門』『蜘蛛の糸』の著者。「ぼんやりとした不安」を理由に自ら命を絶った天才短編作家。", abName: "蜘蛛の糸", abDesc: "被弾時、敵HPを10奪う", isPlayable: true },
+            { name: "中島敦", hp: 300, maxHp: 300, atk: 30, hint: "『山月記』『李陵』の著者。自尊心と羞恥心によって虎に変貌してしまう男を描いた。", abName: "月下獣", abDesc: "最初の正解時のみ攻撃力2倍", isPlayable: true },
+            { name: "森鴎外", hp: 320, maxHp: 320, atk: 28, hint: "『舞姫』『高瀬舟』の著者。小説家であり、陸軍軍医総監（軍医のトップ）という本職を持っていた。", abName: "舞姫", abDesc: "20%で敵攻撃を完全回避", isPlayable: true },
+            { name: "宮沢賢治", hp: 280, maxHp: 280, atk: 32, hint: "『銀河鉄道の夜』『注文の多い料理店』の著者。地質調査や農業指導に奔走した岩手生まれの詩人。", abName: "雨ニモマケズ", abDesc: "受けるダメージを常に5軽減", isPlayable: true },
+            { name: "鴨長明", hp: 220, maxHp: 220, atk: 38, hint: "「ゆく河の流れは絶えずして…」で知られる鎌倉時代の代表的な随筆『方丈記』の著者。", abName: "無常観", abDesc: "5連正解で敵ATKを永久半減", isPlayable: true },
+            { name: "重松清", hp: 320, maxHp: 320, atk: 26, hint: "現代の作家。『ナイフ』『エイジ』『とんび』など、現代のいじめや家族の葛藤をリアルに描く。", abName: "親心のバリア", abDesc: "開始時に耐久40のシールド", isPlayable: true },
+            { name: "鷺沢萠", hp: 260, maxHp: 260, atk: 34, hint: "現役女子大生作家として注目され『川べりの道』や『駆ける少年』を発表。若者の孤独を描いた。", abName: "駆ける衝動", abDesc: "毎ターン終了時敵に10ダメージ", isPlayable: true },
+            { name: "永井荷風", hp: 310, maxHp: 310, atk: 27, hint: "耽美派の作家。フランス・アメリカ留学を経て、江戸情緒や花柳界を描いた『濹東綺譚』を残す。", abName: "断腸亭日乗", abDesc: "毎ターン敵のHPを5吸収", isPlayable: true },
+            { name: "井伏鱒二", hp: 340, maxHp: 340, atk: 25, hint: "『山椒魚』や、原爆の悲劇を描いた『黒い雨』の著者。ユーモアと庶民的な温かみのある文体が特徴。", abName: "日常のユーモア", abDesc: "クイズ正解時、追加で敵に10ダメージ", isPlayable: true },
+            { name: "谷崎潤一郎", hp: 250, maxHp: 250, atk: 36, hint: "耽美派の巨匠。『痴人の愛』『春琴抄』『細雪』の著者。女性崇拝や伝統的な日本語の美を追求した。", abName: "悪魔主義", abDesc: "クイズ正解時、1.5倍ダメージ", isPlayable: true },
+            { name: "梶井基次郎", hp: 210, maxHp: 210, atk: 38, hint: "短編の名手。肺結核に苦しみながら、丸善の棚の洋書の上にレモンを置いて去る心理を描いた『檸檬』が有名。", abName: "鮮烈なる檸檬", abDesc: "HPが減るほどATK最大1.5倍", isPlayable: true },
+            { name: "野間宏", hp: 300, maxHp: 300, atk: 29, hint: "第一次戦後派の作家。自身の軍隊経験を基に、抑圧された人間の心理を克明に描いた『真空地帯』が代表作。", abName: "真空地帯", abDesc: "HPが30%以下になるとATKが1.4倍", isPlayable: true },
+            { name: "原民喜", hp: 230, maxHp: 230, atk: 35, hint: "詩人・小説家。広島での被爆体験をリアルかつ痛切に描いた原爆文学の金字塔『夏の花』の著者。", abName: "夏の花", abDesc: "自分が倒れた時、敵に40ダメージの道連れ", isPlayable: true },
+            { name: "梅崎春生", hp: 290, maxHp: 290, atk: 30, hint: "戦後派作家。特攻基地の暗号兵としての張り詰めた日常と人間のエゴを描いた『桜島』で一躍有名に。", abName: "戦後の幻影", abDesc: "敵のリアルタイム自動攻撃の威力を2軽減", isPlayable: true },
+            { name: "大岡昇平", hp: 280, maxHp: 280, atk: 33, hint: "戦後派の重鎮。レイテ島での捕虜経験を基にした『俘虜記』や、極限状態での人肉食を扱った『野火』が代表作。", abName: "野火の記憶", abDesc: "敵にダメージを与える度、自身のHPが5回復", isPlayable: true },
+            { name: "三島由紀夫", hp: 200, maxHp: 200, atk: 48, hint: "『仮面の告白』『金閣寺』の著者。完璧な言語美と肉体美を追求し、最後は市ヶ谷の自衛隊駐屯地で自決。", abName: "金閣炎上", abDesc: "ATKが高いが、毎ターンHPが7減少", isPlayable: true },
+            { name: "安部公房", hp: 330, maxHp: 330, atk: 26, hint: "前衛文学の旗手。砂の穴の底に閉じ込められた男の不条理を描いた『砂の女』や『箱男』で世界的に評価された。", abName: "砂の壁", abDesc: "クイズ不正解時の敵の反撃を完全無効化", isPlayable: true },
+            { name: "井上靖", hp: 350, maxHp: 350, atk: 26, hint: "歴史小説の大家。シルクロードや仏教を題材にした『天平の甍』『敦煌』や、自伝的小説『しろばんば』が有名。", abName: "天平の甍", abDesc: "3連正解で自身のHPを40回復", isPlayable: true },
+            { name: "三浦哲郎", hp: 310, maxHp: 310, atk: 29, hint: "純文学作家。兄姉が次々と失踪・自殺した自身の悲劇的な家系を見つめ、ひたむきな愛を描いた『忍ぶ川』で芥川賞。", abName: "忍ぶ川の情愛", abDesc: "HPが50以下になると一度だけHPが40回復", isPlayable: true },
+            { name: "安岡章太郎", hp: 320, maxHp: 320, atk: 27, hint: "「第三の新人」の代表格。自身の劣等感や、没落していく家庭の姿をユーモラスかつ冷徹に描いた『悪い仲間』など。", abName: "陰気なユーモア", abDesc: "不正解時、敵のATKを3ターンの間「5」下げる", isPlayable: true },
+            { name: "開高健", hp: 300, maxHp: 300, atk: 32, hint: "ルポルタージュ作家。ベトナム戦争の最前線に従軍した経験を描いた『輝ける闇』や、壮大な釣りエッセイで知られる。", abName: "熱き輝ける闇", abDesc: "正解時、15%の確率で敵に2倍ダメージ", isPlayable: true },
+            { name: "遠藤周作", hp: 340, maxHp: 340, atk: 25, hint: "キリスト教作家。江戸時代のキリシタン弾圧と信者の苦悩、神の沈黙を描いた名作『沈黙』の著者。", abName: "大いなる沈黙", abDesc: "受けるすべてのダメージを常に15%カット", isPlayable: true },
+            { name: "大江健三郎", hp: 270, maxHp: 270, atk: 36, hint: "1994年ノーベル文学賞受賞。障害を持つ息子との生を描いた『個人的な体験』や『万延元年のフットボール』を執筆。", abName: "個人的な神話", abDesc: "クイズに正解する度に、自身のATKが3ずつ上昇", isPlayable: true },
+            { name: "幸田文", hp: 330, maxHp: 330, atk: 26, hint: "幸田露伴の娘。父の厳しい躾や死を綴った随筆や、芸者置屋の日常を緻密に描いた小説『流れる』で知られる。", abName: "凛々しき流れる", abDesc: "敵の自動攻撃を受けた際、15%の確率で無効化", isPlayable: true },
+            { name: "星新一", hp: 260, maxHp: 260, atk: 30, hint: "「ショートショートの神様」。生涯に1000編以上の超短編SFを残す。代表作に『ボッコちゃん』など。", abName: "おせっかいな宇宙人", abDesc: "毎ターンATKが15〜45の間でランダムに変動", isPlayable: true },
+            { name: "浅田次郎", hp: 330, maxHp: 330, atk: 28, hint: "「平成の泣かせ屋」。鉄道員の老境と奇跡を描いた『鉄道員（ぽっぽや）』や、中国の歴史巨編『蒼穹の昴』の著者。", abName: "ぽっぽやの奇跡", abDesc: "HPが0になるダメージを受けた時、一度だけHP1で耐える", isPlayable: true },
+            { name: "井上ひさし", hp: 300, maxHp: 300, atk: 28, hint: "劇作家・小説家。東北の架空の村が独立を宣言する『吉里吉里人』や、言葉遊びを駆使した劇作『父と暮せば』など。", abName: "ひさしの言葉遊び", abDesc: "選択肢の文豪の名前がすべてコミカルな偽名になる", isPlayable: true },
+            
+            // 【クイズのお題・選択肢専用（キャラとしては出現しない6名）】
+            { name: "川上弘美", hint: "年の離れた元教師との恋を浮遊感のある文体で描いた『センセイの鞄』や、芥川賞受賞作『蛇を踏む』の著者。", isPlayable: false },
+            { name: "江國香織", hint: "清澄な文体で、少し歪んだ幸福を描く作家。『きらきらひかる』や、直木賞受賞作『号泣する準備はできていた』など。", isPlayable: false },
+            { name: "山田詠美", hint: "米軍基地周辺の恋愛を描いた『ベッドタイムアイズ』や、少年少女の成長と傷を描く『風葬の教室』などの著者。", isPlayable: false },
+            { name: "村上春樹", hint: "『風の歌を聴け』でデビューし、『ノルウェイの森』『海辺のカフカ』など独特の比喩と喪失感を描く世界的作家。", isPlayable: false },
+            { name: "宮本輝", hint: "人間の業や生死を大河的な物語で描く作家。大阪の川べりを舞台にした『泥の河』『螢川』などの川三部作が有名。", isPlayable: false },
+            { name: "向田邦子", hint: "昭和の家庭の裏に潜む人間の機微を鋭く切り取った短編集『思い出トランプ』で直木賞を受賞した脚本家・エッセイスト。", isPlayable: false }
         ];
 
-        let player = null;
-        let enemy = null;
-        let currentQuizAnswer = "";
-        let isGameover = false;
-        let enemyAttackTimer = null; 
+        // 使用可能なキャラクター（isPlayableがtrueのものだけ）を抽出
+        const playableBungo = bungoData.filter(b => b.isPlayable);
 
-        let playerStreakCount = 0;
-        let playerShield = 0;
-        let isAtsushiTriggered = false;
-        let isChomeiTriggered = false;
+        let player = null, enemy = null, currentQuizAnswer = "", isGameover = false, enemyAttackTimer = null; 
+        let playerStreakCount = 0, playerShield = 0, isAtsushiTriggered = false, isChomeiTriggered = false;
+        let isMishimaTriggered = false, isAsadaTriggered = false;
 
         function goToSelectScreen() {
             document.getElementById('rules-screen').style.display = "none";
@@ -340,8 +268,7 @@
         function createSelectScreen() {
             const grid = document.getElementById('select-grid-container');
             grid.innerHTML = "";
-            
-            bungoData.forEach((bungo, index) => {
+            playableBungo.forEach((bungo, index) => {
                 const btn = document.createElement('button');
                 btn.className = "select-card-btn";
                 btn.innerHTML = `
@@ -354,85 +281,58 @@
             });
         }
 
-        function selectCharacter(selectedIndex) {
-            player = { ...bungoData[selectedIndex] };
+        function selectCharacter(playableIndex) {
+            player = { ...playableBungo[playableIndex] };
+            let eIndex = Math.floor(Math.random() * playableBungo.length);
+            while(playableBungo[eIndex].name === player.name) eIndex = Math.floor(Math.random() * playableBungo.length);
+            enemy = { ...playableBungo[eIndex] };
 
-            let eIndex = Math.floor(Math.random() * bungoData.length);
-            while(eIndex === selectedIndex) {
-                eIndex = Math.floor(Math.random() * bungoData.length);
-            }
-            enemy = { ...bungoData[eIndex] };
-
-            playerStreakCount = 0;
-            playerShield = 0;
-            isAtsushiTriggered = false;
-            isChomeiTriggered = false;
-
-            if (player.name === "重松清") {
-                playerShield = 40;
-            }
+            playerStreakCount = 0; playerShield = 0; isAtsushiTriggered = false; isChomeiTriggered = false; isAsadaTriggered = false; isMishimaTriggered = false;
+            if (player.name === "重松清") playerShield = 40;
 
             document.getElementById('character-select').style.display = "none";
             document.getElementById('battle-screen').style.display = "flex";
-
             isGameover = false;
             
-            let startLog = `${player.name} VS ${enemy.name} ！ バトル開始！`;
-            if (player.name === "重松清") startLog += "<br>【能力発動】『親心のバリア』で耐久40のシールドを展開！";
-            
-            document.getElementById('log-text').innerHTML = startLog;
-            document.getElementById('log-text').style.color = "#00ffcc";
-            
+            document.getElementById('log-text').innerHTML = `${player.name} VS ${enemy.name} ！ バトル開始！`;
             updateDisplay();
             nextTurn();
 
             if(enemyAttackTimer) clearInterval(enemyAttackTimer);
-            enemyAttackTimer = setInterval(enemyActiveAttack, 4500); // 4.5秒周期
+            enemyAttackTimer = setInterval(enemyActiveAttack, 4500);
         }
 
         function enemyActiveAttack() {
             if (isGameover || !player || !enemy) return;
-            
             const log = document.getElementById('log-text');
-            let dmgLog = "";
-            let abLog = "";
+            let dmgLog = "", abLog = "";
             
             if (player.name === "森鴎外" && Math.random() < 0.20) {
-                log.innerHTML = "【能力発動】『舞姫』! 敵の自動攻撃を華麗に回避！";
-                log.style.color = "#00ffcc";
+                log.innerHTML = "【能力発動】『舞姫』! 敵の自動攻撃を完全回避！";
+                return;
+            }
+            if (player.name === "幸田文" && Math.random() < 0.15) {
+                log.innerHTML = "【能力発動】『流れる』! 敵の自動攻撃を受け流した！";
                 return;
             }
 
             let dmg = enemy.atk;
-            if (player.name === "宮沢賢治") {
-                dmg = Math.max(1, dmg - 5);
-                abLog += "【能力発動】『雨ニモマケズ』で5軽減！<br>";
-            }
+            if (player.name === "宮沢賢治") { dmg = Math.max(1, dmg - 5); abLog += "【能力】『雨ニモマケズ』5軽減！<br>"; }
+            if (player.name === "遠藤周作") { dmg = Math.floor(dmg * 0.85); abLog += "【能力】『沈黙』15%カット！<br>"; }
+            if (player.name === "梅崎春生") { dmg = Math.max(1, dmg - 2); abLog += "【能力】『桜島』自動攻撃2軽減！<br>"; }
 
             if (playerShield > 0) {
-                if (playerShield >= dmg) {
-                    playerShield -= dmg;
-                    dmgLog = `💥敵の自動攻撃！シールドが ${dmg} ダメージを吸収！`;
-                } else {
-                    let pierce = dmg - playerShield;
-                    playerShield = 0;
-                    player.hp -= pierce;
-                    dmgLog = `💥敵の自動攻撃！シールド破壊！本体に ${pierce} ダメージ！`;
-                }
+                if (playerShield >= dmg) { playerShield -= dmg; dmgLog = `💥敵の自動攻撃！シールドが ${dmg} 吸収！`; } 
+                else { let p = dmg - playerShield; playerShield = 0; player.hp -= p; dmgLog = `💥シールド破壊！本体に ${p} ダメージ！`; }
             } else {
                 player.hp -= dmg;
-                dmgLog = `💥⏳敵のリアルタイム自動攻撃！ ${player.name} は ${dmg} ダメージを受けた！`;
+                dmgLog = `💥⏳敵のリアルタイム自動攻撃！ ${dmg} ダメージ！`;
             }
 
-            if (player.name === "芥川龍之介") {
-                enemy.hp -= 10;
-                player.hp = Math.min(player.maxHp, player.hp + 10);
-                abLog += "【能力発動】『蜘蛛の糸』！カウンタードレインで敵HPを10吸収！<br>";
-            }
+            if (player.name === "芥川龍之介") { enemy.hp -= 10; player.hp = Math.min(player.maxHp, player.hp + 10); abLog += "【能力】『蜘蛛の糸』10吸収！<br>"; }
 
             log.innerHTML = abLog + dmgLog;
             log.style.color = "#ff4d4d";
-            
             updateDisplay();
             checkBattleOver();
         }
@@ -440,11 +340,9 @@
         function updateDisplay() {
             if (!player || !enemy) return;
             document.getElementById('p-name').innerText = player.name;
-            const hpText = playerShield > 0 ? `${Math.max(0, player.hp)} (+${playerShield})` : Math.max(0, player.hp);
-            document.getElementById('p-hp').innerText = hpText;
+            document.getElementById('p-hp').innerText = playerShield > 0 ? `${Math.max(0, player.hp)} (+${playerShield})` : Math.max(0, player.hp);
             document.getElementById('p-atk').innerText = Math.floor(player.atk);
             document.getElementById('p-ability-name').innerText = `⚡ ${player.abName}`;
-
             document.getElementById('e-name').innerText = enemy.name;
             document.getElementById('e-hp').innerText = Math.max(0, enemy.hp);
             document.getElementById('e-atk').innerText = Math.floor(enemy.atk);
@@ -453,17 +351,15 @@
 
         function nextTurn() {
             if (isGameover) return;
-
+            // クイズ問題は、キャラクター対象外の6名も含めた全35名からランダムに出題
             const quizSource = bungoData[Math.floor(Math.random() * bungoData.length)];
             currentQuizAnswer = quizSource.name;
             document.getElementById('hint-text').innerText = quizSource.hint;
 
             let choices = [quizSource.name];
             while (choices.length < 4) {
-                let randomName = bungoData[Math.floor(Math.random() * bungoData.length)].name;
-                if (!choices.includes(randomName)) {
-                    choices.push(randomName);
-                }
+                let rName = bungoData[Math.floor(Math.random() * bungoData.length)].name;
+                if (!choices.includes(rName)) choices.push(rName);
             }
             choices.sort(() => Math.random() - 0.5);
 
@@ -472,7 +368,11 @@
             choices.forEach(name => {
                 const btn = document.createElement('button');
                 btn.className = "btn";
-                btn.innerText = name;
+                if (player.name === "井上ひさし" && name !== currentQuizAnswer) {
+                    btn.innerText = name + "（偽物）";
+                } else {
+                    btn.innerText = name;
+                }
                 btn.onclick = () => handleAction(name);
                 container.appendChild(btn);
             });
@@ -480,102 +380,68 @@
 
         function handleAction(selectedName) {
             if (isGameover || !player || !enemy) return;
-
             const log = document.getElementById('log-text');
-            let actionLog = "";
-            let abilityLog = "";
+            let actionLog = "", abLog = "";
+
+            if (player.name === "三島由紀夫") { player.hp -= 7; abLog += "【能力】『金閣炎上』身を焦がし7自傷ダメージ！<br>"; }
+            if (player.name === "永井荷風") { enemy.hp -= 5; player.hp = Math.min(player.maxHp, player.hp + 5); abLog += "【能力】『濹東綺譚』敵から5吸収！<br>"; }
+            if (player.name === "星新一") { player.atk = Math.floor(Math.random() * 31) + 15; abLog += `【能力】ATKが ${player.atk} に変動！<br>`; }
 
             if (selectedName === currentQuizAnswer) {
                 playerStreakCount++;
                 let damage = player.atk;
 
-                if (player.name === "太宰治" && player.hp <= (player.maxHp / 2)) {
-                    damage = Math.floor(damage * 1.3);
-                    abilityLog += "【能力発動】『人間失格』！窮地により攻撃力1.3倍！<br>";
-                }
-
-                if (player.name === "中島敦" && !isAtsushiTriggered) {
-                    damage = damage * 2;
-                    isAtsushiTriggered = true;
-                    abilityLog += "【能力発動】『月下獣』！猛虎の如き一撃で攻撃力2倍！<br>";
-                }
+                if (player.name === "太宰治" && player.hp <= (player.maxHp / 2)) { damage = Math.floor(damage * 1.3); abLog += "【能力】『人間失格』1.3倍！<br>"; }
+                if (player.name === "中島敦" && !isAtsushiTriggered) { damage *= 2; isAtsushiTriggered = true; abLog += "【能力】『月下獣』2倍！<br>"; }
+                if (player.name === "谷崎潤一郎") { damage = Math.floor(damage * 1.5); abLog += "【能力】『悪魔主義』クリティカル1.5倍！<br>"; }
+                if (player.name === "梶井基次郎") { let ratio = 1 + (1 - player.hp / player.maxHp) * 0.5; damage = Math.floor(damage * ratio); abLog += "【能力】『檸檬』ピンチで威力強化！<br>"; }
+                if (player.name === "野間宏" && player.hp <= (player.maxHp * 0.3)) { damage = Math.floor(damage * 1.4); abLog += "【能力】『真空地帯』1.4倍！<br>"; }
+                if (player.name === "大江健三郎") { player.atk += 3; abLog += "【能力】『個人的な体験』ATKが3永続上昇！<br>"; }
 
                 enemy.hp -= damage;
-                
-                if (playerStreakCount >= 2) {
-                    actionLog = `⭕正解！ 【${playerStreakCount}連コンボ！】 ${player.name} の攻撃！ ${enemy.name} に ${damage} のダメージ！`;
-                } else {
-                    actionLog = `⭕正解！ ${player.name} の攻撃！ ${enemy.name} に ${damage} のダメージ！`;
-                }
+                actionLog = `⭕正解！ ${damage} ダメージ！`;
 
-                if (player.name === "夏目漱石" && Math.random() < 0.25) {
-                    player.hp = Math.min(player.maxHp, player.hp + 30);
-                    abilityLog += "【能力発動】『月が綺麗ですね』。心が癒やされHPが30回復！<br>";
-                }
-
-                if (player.name === "鴨長明" && playerStreakCount === 5 && !isChomeiTriggered) {
-                    enemy.atk = Math.floor(enemy.atk / 2);
-                    isChomeiTriggered = true;
-                    abilityLog += "【能力発動】『無常観』！驚異の5連正解！世の無常を見せつけ敵のATKを永久半減！<br>";
-                }
+                if (player.name === "夏目漱石" && Math.random() < 0.25) { player.hp = Math.min(player.maxHp, player.hp + 30); abLog += "【能力】HP30回復！<br>"; }
+                if (player.name === "井伏鱒二") { enemy.hp -= 10; abLog += "【能力】『山椒魚』追撃10ダメージ！<br>"; }
+                if (player.name === "大岡昇平") { player.hp = Math.min(player.maxHp, player.hp + 5); abLog += "【能力】生命吸収5回復！<br>"; }
+                if (player.name === "井上靖" && playerStreakCount % 3 === 0) { player.hp = Math.min(player.maxHp, player.hp + 40); abLog += "【能力】『敦煌』3連正解で40回復！<br>"; }
+                if (player.name === "開高健" && Math.random() < 0.15) { damage *= 2; abLog += "【能力】『輝ける闇』豪快に2倍ダメージ！<br>"; }
+                if (player.name === "鴨長明" && playerStreakCount === 5 && !isChomeiTriggered) { enemy.atk = Math.floor(enemy.atk / 2); isChomeiTriggered = true; abLog += "【能力】『無常観』敵ATK永久半減！<br>"; }
 
                 log.style.color = "#00ffcc";
-
             } else {
                 playerStreakCount = 0;
-                let enemyDamage = enemy.atk;
-                let isEvaded = false;
-
-                if (player.name === "森鴎外" && Math.random() < 0.20) {
-                    isEvaded = true;
-                    abilityLog += "【能力発動】『舞姫』！敵の攻撃を華麗に回避！<br>";
-                }
-
-                if (isEvaded) {
-                    actionLog = `❌不正解… 正解は ${currentQuizAnswer}。しかし、敵の攻撃を回避した！`;
+                let eDmg = enemy.atk;
+                
+                if (player.name === "安部公房") {
+                    actionLog = `❌不正解… 正解は ${currentQuizAnswer}。しかし『砂の女』の効果で反撃を完全無効化！`;
                 } else {
-                    if (player.name === "宮沢賢治") {
-                        enemyDamage = Math.max(1, enemyDamage - 5);
-                        abilityLog += "【能力発動】『雨ニモマケズ』！受けるダメージを5軽減！<br>";
-                    }
+                    if (player.name === "森鴎外" && Math.random() < 0.20) { actionLog = `❌不正解… しかし『舞姫』で反撃を回避！`; } 
+                    else {
+                        if (player.name === "宮沢賢治") { eDmg = Math.max(1, eDmg - 5); abLog += "【能力】5軽減！<br>"; }
+                        if (player.name === "遠藤周作") { eDmg = Math.floor(eDmg * 0.85); abLog += "【能力】15%カット！<br>"; }
+                        if (player.name === "安岡章太郎") { enemy.atk = Math.max(5, enemy.atk - 5); abLog += "【能力】『悪い仲間』敵のATKを5弱体化！<br>"; }
 
-                    if (playerShield > 0) {
-                        if (playerShield >= enemyDamage) {
-                            playerShield -= enemyDamage;
-                            actionLog = `❌不正解… 正解は ${currentQuizAnswer}。誤答ペナルティ反撃！シールドが ${enemyDamage} 吸収！`;
+                        if (playerShield > 0) {
+                            if (playerShield >= eDmg) { playerShield -= eDmg; actionLog = `❌不正解… 正解は ${currentQuizAnswer}。反撃をシールドが ${eDmg} 吸収！`; } 
+                            else { let p = eDmg - playerShield; playerShield = 0; player.hp -= p; actionLog = `❌シールド破損！本体に ${p} ダメージ！`; }
                         } else {
-                            let pierceDamage = enemyDamage - playerShield;
-                            playerShield = 0;
-                            player.hp -= pierceDamage;
-                            actionLog = `❌不正解… 正解は ${currentQuizAnswer}。シールド破損、本体に ${pierceDamage} ダメージ！`;
+                            player.hp -= eDmg;
+                            actionLog = `❌不正解… 正解は ${currentQuizAnswer}。誤答ペナルティ反撃で ${eDmg} ダメージ！`;
                         }
-                    } else {
-                        player.hp -= enemyDamage;
-                        actionLog = `❌不正解… 正解は ${currentQuizAnswer}。手痛いペナルティ反撃！ ${enemyDamage} のダメージ！`;
-                    }
-
-                    if (player.name === "芥川龍之介") {
-                        enemy.hp -= 10;
-                        player.hp = Math.min(player.maxHp, player.hp + 10);
-                        abilityLog += "【能力発動】『蜘蛛の糸』！地獄の底から敵の命を10吸い取った！<br>";
+                        if (player.name === "芥川龍之介") { enemy.hp -= 10; player.hp = Math.min(player.maxHp, player.hp + 10); abLog += "【能力】10吸収！<br>"; }
                     }
                 }
-
                 log.style.color = "#ff4d4d";
             }
 
-            if (!isGameover && player.name === "鷺沢萠" && enemy.hp > 0 && player.hp > 0) {
-                enemy.hp -= 10;
-                abilityLog += "【能力発動】『駆ける少年の衝動』！ターン終了時に敵のHPを10削る！<br>";
-            }
+            if (player.hp <= 0 && player.name === "三浦哲郎" && !isMishimaTriggered) { player.hp = 40; isMishimaTriggered = true; abLog += "【能力】『忍ぶ川』土壇場でHP40回復！<br>"; }
+            if (player.hp <= 0 && player.name === "浅田次郎" && !isAsadaTriggered) { player.hp = 1; isAsadaTriggered = true; abLog += "【能力】『鉄道員』執念でHP1で耐えた！<br>"; }
 
-            log.innerHTML = (abilityLog !== "" ? abilityLog : "") + actionLog;
-
+            log.innerHTML = abLog + actionLog;
             updateDisplay();
 
             if (!checkBattleOver()) {
-                // ⏱️ 2000になっていたバグを「200ミリ秒（0.2秒）」に完全修正！
-                // 🔒 解答時のボタンロック（無効化）を廃止し、即座に入力を受け付ける仕様に改善！
                 setTimeout(nextTurn, 200); 
             }
         }
@@ -585,23 +451,14 @@
             const log = document.getElementById('log-text');
 
             if (enemy.hp <= 0) {
-                isGameover = true;
-                if(enemyAttackTimer) clearInterval(enemyAttackTimer);
-                setTimeout(() => {
-                    log.innerHTML = `🎉 勝負あり！ ${enemy.name} を撃破した！ あなたの勝利です！`;
-                    log.style.color = "#dab358";
-                    showResetButton();
-                }, 100);
-                return true;
+                isGameover = true; if(enemyAttackTimer) clearInterval(enemyAttackTimer);
+                log.innerHTML = `🎉 勝負あり！ ${enemy.name} を撃破！あなたの勝利です！`;
+                log.style.color = "#dab358"; showResetButton(); return true;
             } else if (player.hp <= 0) {
-                isGameover = true;
-                if(enemyAttackTimer) clearInterval(enemyAttackTimer);
-                setTimeout(() => {
-                    log.innerHTML = `💀 勝負あり！ ${player.name} が倒れた… あなたの敗北です。`;
-                    log.style.color = "#ff4d4d";
-                    showResetButton();
-                }, 100);
-                return true;
+                isGameover = true; if(enemyAttackTimer) clearInterval(enemyAttackTimer);
+                if (player.name === "原民喜") { enemy.hp -= 40; log.innerHTML += "<br>【能力発動】『夏の花』散り際の道連れ40ダメージ！"; }
+                log.innerHTML = `💀 勝負あり！ ${player.name} が倒れた… あなたの敗北です。`;
+                log.style.color = "#ff4d4d"; showResetButton(); return true;
             }
             return false;
         }
@@ -609,19 +466,15 @@
         function showResetButton() {
             const container = document.getElementById('options-container');
             container.innerHTML = "";
-            const resetBtn = document.createElement('button');
-            resetBtn.className = "btn";
-            resetBtn.style.gridColumn = "span 2";
-            resetBtn.style.backgroundColor = "#dab358";
-            resetBtn.style.color = "black";
-            resetBtn.innerText = "タイトル（ルール）に戻る";
-            resetBtn.onclick = function() {
-                player = null;
-                enemy = null;
+            const rBtn = document.createElement('button');
+            rBtn.className = "btn"; rBtn.style.gridColumn = "span 2"; rBtn.style.backgroundColor = "#dab358"; rBtn.style.color = "black";
+            rBtn.innerText = "タイトルに戻る";
+            rBtn.onclick = function() {
+                player = null; enemy = null;
                 document.getElementById('battle-screen').style.display = "none";
                 document.getElementById('rules-screen').style.display = "block";
             };
-            container.appendChild(resetBtn);
+            container.appendChild(rBtn);
         }
     </script>
 </body>
