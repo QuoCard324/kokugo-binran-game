@@ -110,7 +110,6 @@
         .select-stats { font-size: 0.85em; color: #ccc; margin: 3px 0; }
         .select-ability { font-size: 0.75em; color: #00ffcc; background-color: #111; padding: 4px; border-radius: 4px; }
         
-        /* オンライン設定入力欄 */
         .online-setup-box {
             background-color: #1a1a1a;
             border: 1px solid #555;
@@ -285,7 +284,7 @@
             { name: "星新一", hp: 260, maxHp: 260, atk: 30, hint: "「ショートショートの神様」。生涯に1000編以上の超短編SFを残す。代表作に『ボッコちゃん』など。", abName: "おせっかいな宇宙人", abDesc: "毎ターンATKが15〜45の間でランダムに変動", isPlayable: true },
             { name: "浅田次郎", hp: 330, maxHp: 330, atk: 28, hint: "「平成の泣かせ屋」。鉄道員の老境と奇跡を描いた『鉄道員（ぽっぽや）』や、中国の歴史巨編『蒼穹の昴』の著者。", abName: "ぽっぽやの奇跡", abDesc: "HPが0になるダメージを受けた時、一度だけHP1で耐える", isPlayable: true },
             
-            // 問題専用（キャラ選択不可）
+            // 問題専用
             { name: "梅崎春生", hint: "戦後派作家。特攻基地の暗号兵としての張り詰めた日常と人間のエゴを描いた『桜島』や『日の果て』で有名。", isPlayable: false },
             { name: "梶井基次郎", hint: "短編の名手。肺結核に苦しみながら、丸善の棚の洋書の上にレモンを置いて去る心理を描いた『檸檬』が有名。", isPlayable: false },
             { name: "三島由紀夫", hint: "『仮面の告白』『金閣寺』の著者。完璧な言語美と肉体美を追求し、最後は市ヶ谷の自衛隊駐屯地で自決。", isPlayable: false },
@@ -310,10 +309,9 @@
         let playerStreakCount = 0, playerShield = 0;
         let isAtsushiTriggered = false, isChomeiTriggered = false, isMishimaTriggered = false, isAsadaTriggered = false;
         
-        let isOnlineMode = false, currentRoomId = "", playerRole = ""; // host or guest
+        let isOnlineMode = false, currentRoomId = "", playerRole = ""; 
         let selectedBungoIndex = 0;
 
-        // 初期セットアップ（Supabaseにテーブルがない場合は自動で作成要求を通す）
         async function supabaseFetch(endpoint, options = {}) {
             const url = `${SUPABASE_URL}/rest/v1/${endpoint}`;
             const headers = {
@@ -326,12 +324,6 @@
             const res = await fetch(url, { ...options, headers });
             return res;
         }
-
-        async function autoCreateSchema() {
-            // 簡易的にテーブルがあるか確認を兼ねたリクエスト
-            try { await supabaseFetch("rooms?select=*", { method: "GET", headers: { "Range": "0-0" } }); } catch(e) {}
-        }
-        autoCreateSchema();
 
         function goToSelectScreen(online) {
             isOnlineMode = online;
@@ -360,6 +352,7 @@
                 btn.className = "select-card-btn";
                 if(isOnlineMode && selectedBungoIndex === index) {
                     btn.style.borderColor = "#00ffcc";
+                    btn.style.backgroundColor = "#225544";
                 }
                 btn.innerHTML = `
                     <div class="select-name">${bungo.name}</div>
@@ -371,14 +364,13 @@
                     if(!isOnlineMode) {
                         startOfflineGame(index);
                     } else {
-                        createSelectScreen(); // オンライン時は選択状態を視覚化
+                        createSelectScreen();
                     }
                 };
                 grid.appendChild(btn);
             });
         }
 
-        // --- オフライン（一人用）ゲーム開始 ---
         function startOfflineGame(index) {
             player = { ...playableBungo[index] };
             let eIndex = Math.floor(Math.random() * playableBungo.length);
@@ -403,7 +395,7 @@
             if(onlineSyncTimer) clearInterval(onlineSyncTimer);
         }
 
-        // --- オンラインゲーム開始用 ---
+        // --- オンラインゲーム開始用（ゲスト合流バグ修正版） ---
         async function startOnlineGame(role) {
             const roomNum = document.getElementById('room-input').value;
             if(!roomNum || roomNum < 1000 || roomNum > 9999) {
@@ -416,40 +408,41 @@
             document.getElementById('log-text').innerHTML = "通信中...";
 
             if(role === 'host') {
-                // 部屋を新規作成または上書きリセット
                 const roomData = {
                     id: currentRoomId,
                     h_name: player.name, h_hp: player.hp, h_max: player.hp, h_atk: player.atk, h_ab: player.abName,
                     g_name: "待機中...", g_hp: 0, g_max: 0, g_atk: 0, g_ab: "-",
                     last_action: "ホスト入室"
                 };
-                // 既存の部屋を消去してから作成
                 await supabaseFetch(`rooms?id=eq.${currentRoomId}`, { method: "DELETE" });
                 await supabaseFetch("rooms", {
                     method: "POST",
-                    body: JSON.stringify(roomData),
-                    headers: { "Prefer": "return=representation" }
+                    body: JSON.stringify(roomData)
                 });
 
                 enemy = { name: "対戦相手", hp: 100, maxHp: 100, atk: 0, abName: "-" };
                 document.getElementById('log-text').innerHTML = "友達の入室を待っています...部屋番号を伝えてください。";
             } else {
-                // ゲストとして入室
                 const res = await supabaseFetch(`rooms?id=eq.${currentRoomId}`, { method: "GET" });
                 const rooms = await res.json();
                 if(!rooms || rooms.length === 0) {
-                    alert("指定された部屋が見つかりません。ホストが先に入室してください。"); return;
+                    alert("指定された部屋が見つかりません。ホストが先に入室して『部屋を作る』を押してください。"); return;
                 }
                 
                 const room = rooms[0];
                 enemy = { name: room.h_name, hp: room.h_hp, maxHp: room.h_max, atk: room.h_atk, abName: room.h_ab };
 
-                await supabaseFetch(`rooms?id=eq.${currentRoomId}`, {
-                    method: "PATCH",
-                    body: JSON.stringify({
-                        g_name: player.name, g_hp: player.hp, g_max: player.hp, g_atk: player.atk, g_ab: player.abName,
-                        last_action: "ゲスト入室"
-                    })
+                const updateRoomData = {
+                    id: currentRoomId,
+                    h_name: room.h_name, h_hp: room.h_hp, h_max: room.h_max, h_atk: room.h_atk, h_ab: room.h_ab,
+                    g_name: player.name, g_hp: player.hp, g_max: player.hp, g_atk: player.atk, g_ab: player.abName,
+                    last_action: "ゲスト入室"
+                };
+
+                await supabaseFetch("rooms", {
+                    method: "POST",
+                    body: JSON.stringify(updateRoomData),
+                    headers: { "Prefer": "resolution=merge-duplicates" } 
                 });
             }
 
@@ -459,17 +452,13 @@
             updateDisplay();
             nextTurn();
 
-            // 2秒ごとにオンラインの同期処理を実行
             onlineSyncTimer = setInterval(syncOnlineData, 2000);
-            // オンラインでも5秒ごとの自動ペナルティ攻撃を有効化
             enemyAttackTimer = setInterval(enemyActiveAttack, 5000);
         }
 
-        // --- オンラインのデータ同期 ---
         async function syncOnlineData() {
             if(isGameover || !isOnlineMode) return;
 
-            // 自分の最新HPを送信
             const updatePayload = {};
             if(playerRole === 'host') {
                 updatePayload.h_hp = player.hp;
@@ -481,7 +470,6 @@
                 body: JSON.stringify(updatePayload)
             });
 
-            // 相手の最新HPを取得
             const res = await supabaseFetch(`rooms?id=eq.${currentRoomId}`, { method: "GET" });
             const rooms = await res.json();
             if(rooms && rooms.length > 0) {
@@ -508,7 +496,6 @@
 
         function enemyActiveAttack() {
             if (isGameover || !player || !enemy) return;
-            // オンライン対戦時に相手がまだ入室していない場合は攻撃をスキップ
             if (isOnlineMode && enemy.atk === 0) return;
 
             const log = document.getElementById('log-text');
@@ -586,7 +573,7 @@
             let actionLog = "", abLog = "";
 
             if (player.name === "永井荷風") { enemy.hp -= 5; player.hp = Math.min(player.maxHp, player.hp + 5); abLog += "【能力】『濹東綺譚』敵から5吸収！<br>"; }
-            if (player.name === "星新一") { player.atk = Math.floor(Math.random() * 31) + 15; abLog += `【能力】ATKが ${player.atk} に変動！<br>`; }
+            if (player.name === "星新新一") { player.atk = Math.floor(Math.random() * 31) + 15; abLog += `【能力】ATKが ${player.atk} に変動！<br>`; }
 
             if (selectedName === currentQuizAnswer) {
                 playerStreakCount++;
@@ -637,7 +624,6 @@
             log.innerHTML = abLog + actionLog;
             updateDisplay();
 
-            // オンライン対戦時は即座に最新の計算結果をデータベースに送る
             if(isOnlineMode) {
                 const actionPayload = playerRole === 'host' ? { h_hp: player.hp, g_hp: enemy.hp } : { g_hp: player.hp, h_hp: enemy.hp };
                 await supabaseFetch(`rooms?id=eq.${currentRoomId}`, { method: "PATCH", body: JSON.stringify(actionPayload) });
