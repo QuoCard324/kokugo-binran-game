@@ -253,7 +253,7 @@
         <div class="user-badge" id="login-user-badge">ログイン中: 未ログイン</div>
 
         <div id="rules-screen" class="rules-container">
-            <h2>📜 对戦ルール説明</h2>
+            <h2>📜 対戦ルール説明</h2>
             <div class="rules-content">
                 <h3>⚔️ 基本ルール</h3>
                 <ul>
@@ -317,7 +317,7 @@
         const SUPABASE_URL = "https://eqqbxsiptbgxgsznuzhq.supabase.co";
         const SUPABASE_KEY = "sb_publishable_yP1Xswfbs9_K0-1CoSimPw_p1TXzzxd";
 
-        let currentAuthMode = "login"; // もしくは "signup"
+        let currentAuthMode = "login"; 
         let loginUserToken = "";
         let loginUserEmail = "";
 
@@ -330,9 +330,9 @@
 
             if(!email || !password) { msgElm.innerText = "メールアドレスとパスワードを入力してください"; return; }
 
-            let url = `${SUPABASE_URL}/auth/v1/token?grant_type=password`; // ログイン
+            let url = `${SUPABASE_URL}/auth/v1/token?grant_type=password`; 
             if(currentAuthMode === "signup") {
-                url = `${SUPABASE_URL}/auth/v1/signup`; // 新規登録
+                url = `${SUPABASE_URL}/auth/v1/signup`; 
             }
 
             try {
@@ -356,7 +356,6 @@
                     msgElm.innerText = "アカウント作成成功！ログイン画面からログインしてください。";
                     toggleAuthMode();
                 } else {
-                    // ログイン成功
                     loginUserToken = data.access_token;
                     loginUserEmail = data.user.email;
                     
@@ -402,7 +401,6 @@
             return res;
         }
 
-        // クイズ問題用：全35名
         const bungoData = [
             { name: "太宰治", hp: 240, maxHp: 240, atk: 35, hint: "『人間失格』『走れメロス』の著者。心中未遂を繰り返し、39歳で玉川上水にて入水。", abName: "人間失格", abDesc: "HP半分以下でATK1.3倍", isPlayable: true },
             { name: "夏目漱石", hp: 360, maxHp: 360, atk: 25, hint: "『吾輩は猫である』『こころ』の著者。千円札の肖像でも有名。イギリス留学で神経衰弱に。", abName: "月が綺麗ですね", abDesc: "正解時25%でHP30回復", isPlayable: true },
@@ -423,24 +421,7 @@
             { name: "大江健三郎", hp: 270, maxHp: 270, atk: 36, hint: "1994年ノーベル文学賞受賞。障害を持つ息子との生を描いた『個人的な体験』や『万延元年のフットボール』を執筆。", abName: "個人的な神話", abDesc: "クイズに正解する度に、自身のATKが3ずつ上昇", isPlayable: true },
             { name: "幸田文", hp: 330, maxHp: 330, atk: 26, hint: "幸田露伴の娘。父の厳しい躾や死を綴った随筆や、芸者置屋の日常を緻密に描いた小説『流れる』で知られる。", abName: "凛々しき流れる", abDesc: "敵の自動攻撃を受けた際、15%の確率で無効化", isPlayable: true },
             { name: "星新一", hp: 260, maxHp: 260, atk: 30, hint: "「ショートショートの神様」。生涯に1000編以上の超短編SFを残す。代表作に『ボッコちゃん』など。", abName: "おせっかいな宇宙人", abDesc: "毎ターンATKが15〜45の間でランダムに変動", isPlayable: true },
-            { name: "浅田次郎", hp: 330, maxHp: 330, atk: 28, hint: "「平成の泣かせ屋」。鉄道員の老境と奇跡を描いた『鉄道員（ぽっぽや）』や、中国の歴史巨編『蒼穹の昴』の著者。", abName: "ぽっぽやの奇跡", abDesc: "HPが0になるダメージを受けた時、一度だけHP1で耐える", isPlayable: true },
-            
-            // 問題専用
-            { name: "梅崎春生", hint: "戦後派作家。特攻基地の暗号兵としての張り詰めた日常と人間のエゴを描いた『桜島』や『日の果て』で有名。", isPlayable: false },
-            { name: "梶井基次郎", hint: "暗編の名手。肺結核に苦しみながら、丸善の棚の洋書の上にレモンを置いて去る心理を描いた『檸檬』が有名。", isPlayable: false },
-            { name: "三島由紀夫", hint: "『仮面の告白』『金閣寺』の著者。完璧な言語美と肉体美を追求し、最後は市ヶ谷の自衛隊駐屯地で自決。", isPlayable: false },
-            { name: "安岡章太郎", hint: "「第三の新人」の代表格。自身の劣等感や、没落していく家庭の姿をユーモラスかつ冷徹に描いた『悪い仲間』『海辺の光景』など。", isPlayable: false },
-            { name: "井上ひさし", hint: "劇作家・小説家。東北の架空の村が独立を宣言する『吉里吉里人』や、言葉遊びを駆使した劇作『父と暮せば』など。", isPlayable: false },
-            { name: "大岡昇平", hint: "戦後派の重鎮。レイテ島での捕虜経験を基にした『俘虜記』や、極限状態での人肉食を扱った『野火』が代表作。", isPlayable: false },
-            { name: "原民喜", hint: "詩人・小説家。広島での被爆体験をリアルかつ痛切に描いた原爆文学の金字塔『夏の花』の著者。", isPlayable: false },
-            { name: "谷崎潤一郎", hint: "耽美派の巨匠。『痴人の愛』『春琴抄』『細雪』の著者。女性崇拝や伝統的な日本語の美を追求した。", isPlayable: false },
-            { name: "井伏鱒二", hint: "『山椒魚』や、原爆の悲劇を描いた『黒い雨』の著者。ユーモアと庶民的な温かみのある文体が特徴。", isPlayable: false },
-            { name: "川上弘美", hint: "年の離れた元教師との恋を浮遊感のある文体で描いた『センセイの鞄』や、芥川賞受賞作『蛇を踏む』の著者。", isPlayable: false },
-            { name: "江國香織", hint: "清澄な文体で、少し歪んだ幸福を描く作家。『きらきらひかる』や、直木賞受賞作『号泣する準備はできていた』など。", isPlayable: false },
-            { name: "山田詠美", hint: "米軍基地周辺の恋愛を描いた『ベッドタイムアイズ』や、少年少女の成長と傷を描く『風葬の教室』などの著者。", isPlayable: false },
-            { name: "村上春樹", hint: "『風の歌を聴け』でデビューし、『ノルウェイの森』『海辺のカフカ』など独特の比喩と喪失感を描く世界的作家。", isPlayable: false },
-            { name: "宮本輝", hint: "人間の業や生死を大河的な物語で描く作家。大阪の川べりを舞台にした『泥の河』『螢川』などの川三部作が有名。", isPlayable: false },
-            { name: "向田邦子", hint: "昭和の家庭の裏に潜む人間の機微を鋭く切り取った短編集『思い出トランプ』で直木賞を受賞した脚本家・エッセイスト。", isPlayable: false }
+            { name: "浅田次郎", hp: 330, maxHp: 330, atk: 28, hint: "「平成の泣かせ屋」。鉄道員の老境と奇跡を描いた『鉄道員（ぽっぽや）』や、中国の歴史巨編『蒼穹の昴』の著者。", abName: "ぽっぽやの奇跡", abDesc: "HPが0になるダメージを受けた時、一度だけHP1で耐える", isPlayable: true }
         ];
 
         const playableBungo = bungoData.filter(b => b.isPlayable);
@@ -528,7 +509,7 @@
             if(!roomNum || roomNum < 1000 || roomNum > 9999) {
                 alert("4桁の部屋番号(1000〜9999)を入力してください"); return;
             }
-            currentRoomId = "room_" + roomNum;
+            currentRoomId = "room_" + roomNum; // 🛠️ ここをアンダーバーに完全統一
             playerRole = role;
             player = { ...playableBungo[selectedBungoIndex] };
 
@@ -670,6 +651,8 @@
 
         function nextTurn() {
             if (isGameover) return;
+            
+            // 🛠️ クイズ用の文豪データを安全に取得する
             const quizSource = bungoData[Math.floor(Math.random() * bungoData.length)];
             currentQuizAnswer = quizSource.name;
             document.getElementById('hint-text').innerText = quizSource.hint;
