@@ -32,7 +32,7 @@
             border: 2px solid #dab358;
             padding: 25px;
             border-radius: 10px;
-            max-width: 600px;
+            max-width: 650px;
             width: 100%;
             text-align: center;
             box-shadow: 0 8px 16px rgba(0,0,0,0.5);
@@ -201,14 +201,17 @@
     </div>
 
     <script>
-        // 文豪データ
+        // 文豪データ（3名追加して全9名になりました！）
         const bungoData = [
             { name: "太宰治", hp: 120, atk: 35, hint: "「恥の多い生涯を送って来ました」で始まる『人間失格』の著者。心中未遂を繰り返した。" },
             { name: "夏目漱石", hp: 180, atk: 25, hint: "イギリス留学で神経衰弱になる。『吾輩は猫である』で一躍有名に。「月が綺麗ですね」の逸話も。" },
             { name: "芥川龍之介", hp: 100, atk: 40, hint: "『羅生門』『鼻』の著者。ぼんやりとした不安を理由に35歳で早世。彼の名を冠した文学賞がある。" },
             { name: "中島敦", hp: 150, atk: 30, hint: "『山月記』の著者。喘息のため33歳で早世。国語の教科書で虎になる男といえばこの人。" },
             { name: "森鴎外", hp: 160, atk: 28, hint: "小説家でありながら、本職は「軍医（陸軍軍医総監）」。代表作は『舞姫』『高瀬舟』。" },
-            { name: "宮沢賢治", hp: 140, atk: 32, hint: "岩手県出身。農業指導をしながら『銀河鉄道の夜』や『注文の多い料理店』を執筆した。" }
+            { name: "宮沢賢治", hp: 140, atk: 32, hint: "岩手県出身。農業指導をしながら『銀河鉄道の夜』や『注文の多い料理店』を執筆した。" },
+            { name: "鴨長明", hp: 110, atk: 38, hint: "「ゆく河の流れは絶えずして、しかももとの水にあらず」で始まる鎌倉時代の随筆『方丈記』の著者。" },
+            { name: "重松清", hp: 160, atk: 26, hint: "現代の作家。いじめや家族、思春期の葛藤をテーマにした『ナイフ』『エイジ』『とんび』などで知られる。" },
+            { name: "鷺沢萠", hp: 130, atk: 34, hint: "現役女子大生作家として注目され『川べりの道』や『駆ける少年』を発表。若者の孤独を瑞々しく描いた。" }
         ];
 
         let player = {};
@@ -216,7 +219,6 @@
         let currentQuizAnswer = "";
         let isGameover = false;
 
-        // キャラクター選択ボタンを絶対にエラーが起きない方法で生成
         function createSelectScreen() {
             const grid = document.getElementById('select-grid-container');
             grid.innerHTML = "";
@@ -225,7 +227,6 @@
                 const btn = document.createElement('button');
                 btn.className = "select-card-btn";
                 
-                // エラーの原因だった結合を完全に無くし、テンプレートリテラルで安全に作成
                 btn.innerHTML = `
                     <div class="select-name">${bungo.name}</div>
                     <div class="select-stats">HP: ${bungo.hp} / ATK: ${bungo.atk}</div>
@@ -344,7 +345,6 @@
             container.appendChild(resetBtn);
         }
 
-        // 画面が読み込まれたら一瞬で起動
         createSelectScreen();
     </script>
 </body>
