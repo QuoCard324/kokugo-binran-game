@@ -244,7 +244,7 @@
     <p class="subtitle">正しい知識を選び、特殊能力で勝利を掴め！</p>
 
     <div id="rules-screen" class="rules-container">
-        <h2>📜 対戦ルール説明</h2>
+        <h2>📜 对戦ルール説明</h2>
         <div class="rules-content">
             <h3>⚔️ 基本ルール</h3>
             <ul>
@@ -262,7 +262,7 @@
                 <li class="ability-list-item"><strong>芥川龍之介【蜘蛛の糸】</strong>: 敵からダメージを受けた際（自動攻撃含む）、敵のHPを10奪って自分を回復する。</li>
                 <li class="ability-list-item"><strong>中島敦【月下獣】</strong>: 最初の正解時のみ、与えるダメージが2倍になる。</li>
                 <li class="ability-list-item"><strong>森鴎外【舞姫】</strong>: 20%の確率で、敵からのあらゆる攻撃を完全に見切って回避する。</li>
-                <li class="ability-list-item"><strong>宮沢賢治【雨ニモマケズ】</strong>: 受けるダメージを常に「5」軽減する。</li>
+                <li class="ability-list-item"><strong>宮沢賢治【雨ニモマケズ】</strong>: 受けるダメージを常に「5」軽減する.</li>
                 <li class="ability-list-item"><strong>鴨長明【無常観】</strong>: クイズに<span class="highlight-text">5問連続正解</span>すると、敵のATKを永久に半減させる。</li>
                 <li class="ability-list-item"><strong>重松清【親心のバリア】</strong>: バトル開始時、敵の攻撃を防ぐ耐久値40のシールドを張る。</li>
                 <li class="ability-list-item"><strong>鷺沢萠【駆ける少年の衝動】</strong>: 毎ターン（クイズ解答時）、敵のHPに10の固定ダメージを与える。</li>
@@ -317,4 +317,313 @@
             { name: "宮沢賢治", hp: 280, maxHp: 280, atk: 32, hint: "岩手県出身。農業指導をしながら『銀河鉄道の夜』や『注文の多い料理店』を執筆した。", abName: "雨ニモマケズ", abDesc: "受けるダメージを常に5軽減" },
             { name: "鴨長明", hp: 220, maxHp: 220, atk: 38, hint: "「ゆく河の流れは絶えずして、しかももとの水にあらず」で始まる鎌倉時代の随筆『方丈記』の著者。", abName: "無常観", abDesc: "5問連続正解で敵ATKを永久半減" },
             { name: "重松清", hp: 320, maxHp: 320, atk: 26, hint: "現代の作家。いじめや家族、思春期の葛藤をテーマにした『ナイフ』『エイジ』『とんび』などで知られる。", abName: "親心のバリア", abDesc: "開始時に耐久値40のシールド" },
-            { name: "鷺沢萠", hp: 260, maxHp: 260, atk: 34, hint: "現役女子大生作家として注目され『川べりの道』や
+            { name: "鷺沢萠", hp: 260, maxHp: 260, atk: 34, hint: "現役女子大生作家として注目され『川べりの道』や『駆ける少年』を発表。若者の孤独を瑞々しく描いた。", abName: "駆ける少年の衝動", abDesc: "毎ターン終了時敵に10ダメージ" }
+        ];
+
+        let player = null;
+        let enemy = null;
+        let currentQuizAnswer = "";
+        let isGameover = false;
+        let enemyAttackTimer = null; // 敵の自動攻撃タイマー
+
+        let playerStreakCount = 0;
+        let playerShield = 0;
+        let isAtsushiTriggered = false;
+        let isChomeiTriggered = false;
+
+        function goToSelectScreen() {
+            document.getElementById('rules-screen').style.display = "none";
+            document.getElementById('character-select').style.display = "block";
+            createSelectScreen();
+        }
+
+        function createSelectScreen() {
+            const grid = document.getElementById('select-grid-container');
+            grid.innerHTML = "";
+            
+            bungoData.forEach((bungo, index) => {
+                const btn = document.createElement('button');
+                btn.className = "select-card-btn";
+                btn.innerHTML = `
+                    <div class="select-name">${bungo.name}</div>
+                    <div class="select-stats">HP: ${bungo.hp} / ATK: ${bungo.atk}</div>
+                    <div class="select-ability">⚡ ${bungo.abName}: ${bungo.abDesc}</div>
+                `;
+                btn.onclick = () => { selectCharacter(index); };
+                grid.appendChild(btn);
+            });
+        }
+
+        function selectCharacter(selectedIndex) {
+            player = { ...bungoData[selectedIndex] };
+
+            let eIndex = Math.floor(Math.random() * bungoData.length);
+            while(eIndex === selectedIndex) {
+                eIndex = Math.floor(Math.random() * bungoData.length);
+            }
+            enemy = { ...bungoData[eIndex] };
+
+            playerStreakCount = 0;
+            playerShield = 0;
+            isAtsushiTriggered = false;
+            isChomeiTriggered = false;
+
+            if (player.name === "重松清") {
+                playerShield = 40;
+            }
+
+            document.getElementById('character-select').style.display = "none";
+            document.getElementById('battle-screen').style.display = "flex";
+
+            isGameover = false;
+            
+            let startLog = `${player.name} VS ${enemy.name} ！ バトル開始！`;
+            if (player.name === "重松清") startLog += "<br>【能力発動】『親心のバリア』で耐久40のシールドを展開！";
+            
+            document.getElementById('log-text').innerHTML = startLog;
+            document.getElementById('log-text').style.color = "#00ffcc";
+            
+            updateDisplay();
+            nextTurn();
+
+            // ⚔️ キャラ選択が完全に終わってからタイマースタート
+            if(enemyAttackTimer) clearInterval(enemyAttackTimer);
+            enemyAttackTimer = setInterval(enemyActiveAttack, 3500);
+        }
+
+        function enemyActiveAttack() {
+            if (isGameover || !player || !enemy) return;
+            
+            const log = document.getElementById('log-text');
+            let dmgLog = "";
+            let abLog = "";
+            
+            if (player.name === "森鴎外" && Math.random() < 0.20) {
+                log.innerHTML = "【能力発動】『舞姫』! 敵の自動攻撃を華麗に回避！";
+                log.style.color = "#00ffcc";
+                return;
+            }
+
+            let dmg = enemy.atk;
+            if (player.name === "宮沢賢治") {
+                dmg = Math.max(1, dmg - 5);
+                abLog += "【能力発動】『雨ニモマケズ』で5軽減！<br>";
+            }
+
+            if (playerShield > 0) {
+                if (playerShield >= dmg) {
+                    playerShield -= dmg;
+                    dmgLog = `💥敵の自動攻撃！シールドが ${dmg} ダメージを吸収！`;
+                } else {
+                    let pierce = dmg - playerShield;
+                    playerShield = 0;
+                    player.hp -= pierce;
+                    dmgLog = `💥敵の自動攻撃！シールド破壊！本体に ${pierce} ダメージ！`;
+                }
+            } else {
+                player.hp -= dmg;
+                dmgLog = `💥⏳敵のリアルタイム自動攻撃！ ${player.name} は ${dmg} ダメージを受けた！`;
+            }
+
+            if (player.name === "芥川龍之介") {
+                enemy.hp -= 10;
+                player.hp = Math.min(player.maxHp, player.hp + 10);
+                abLog += "【能力発動】『蜘蛛の糸』！カウンタードレインで敵HPを10吸収！<br>";
+            }
+
+            log.innerHTML = abLog + dmgLog;
+            log.style.color = "#ff4d4d";
+            
+            updateDisplay();
+            checkBattleOver();
+        }
+
+        function updateDisplay() {
+            if (!player || !enemy) return;
+            document.getElementById('p-name').innerText = player.name;
+            const hpText = playerShield > 0 ? `${Math.max(0, player.hp)} (+${playerShield})` : Math.max(0, player.hp);
+            document.getElementById('p-hp').innerText = hpText;
+            document.getElementById('p-atk').innerText = Math.floor(player.atk);
+            document.getElementById('p-ability-name').innerText = `⚡ ${player.abName}`;
+
+            document.getElementById('e-name').innerText = enemy.name;
+            document.getElementById('e-hp').innerText = Math.max(0, enemy.hp);
+            document.getElementById('e-atk').innerText = Math.floor(enemy.atk);
+            document.getElementById('e-ability-name').innerText = `⚡ ${enemy.abName}`;
+        }
+
+        function nextTurn() {
+            if (isGameover) return;
+
+            const quizSource = bungoData[Math.floor(Math.random() * bungoData.length)];
+            currentQuizAnswer = quizSource.name;
+            document.getElementById('hint-text').innerText = quizSource.hint;
+
+            let choices = [quizSource.name];
+            while (choices.length < 4) {
+                let randomName = bungoData[Math.floor(Math.random() * bungoData.length)].name;
+                if (!choices.includes(randomName)) {
+                    choices.push(randomName);
+                }
+            }
+            choices.sort(() => Math.random() - 0.5);
+
+            const container = document.getElementById('options-container');
+            container.innerHTML = "";
+            choices.forEach(name => {
+                const btn = document.createElement('button');
+                btn.className = "btn";
+                btn.innerText = name;
+                btn.onclick = () => handleAction(name);
+                container.appendChild(btn);
+            });
+        }
+
+        function handleAction(selectedName) {
+            if (isGameover || !player || !enemy) return;
+
+            const log = document.getElementById('log-text');
+            let actionLog = "";
+            let abilityLog = "";
+
+            if (selectedName === currentQuizAnswer) {
+                playerStreakCount++;
+                let damage = player.atk;
+
+                if (player.name === "太宰治" && player.hp <= (player.maxHp / 2)) {
+                    damage = Math.floor(damage * 1.3);
+                    abilityLog += "【能力発動】『人間失格』！窮地により攻撃力1.3倍！<br>";
+                }
+
+                if (player.name === "中島敦" && !isAtsushiTriggered) {
+                    damage = damage * 2;
+                    isAtsushiTriggered = true;
+                    abilityLog += "【能力発動】『月下獣』！猛虎の如き一撃で攻撃力2倍！<br>";
+                }
+
+                enemy.hp -= damage;
+                
+                if (playerStreakCount >= 2) {
+                    actionLog = `⭕正解！ 【${playerStreakCount}連コンボ！】 ${player.name} の攻撃！ ${enemy.name} に ${damage} のダメージ！`;
+                } else {
+                    actionLog = `⭕正解！ ${player.name} の攻撃！ ${enemy.name} に ${damage} のダメージ！`;
+                }
+
+                if (player.name === "夏目漱石" && Math.random() < 0.25) {
+                    player.hp = Math.min(player.maxHp, player.hp + 30);
+                    abilityLog += "【能力発動】『月が綺麗ですね』。心が癒やされHPが30回復！<br>";
+                }
+
+                if (player.name === "鴨長明" && playerStreakCount === 5 && !isChomeiTriggered) {
+                    enemy.atk = Math.floor(enemy.atk / 2);
+                    isChomeiTriggered = true;
+                    abilityLog += "【能力発動】『無常観』！驚異 of 5連正解！世の無常を見せつけ敵のATKを永久半減！<br>";
+                }
+
+                log.style.color = "#00ffcc";
+
+            } else {
+                playerStreakCount = 0;
+                let enemyDamage = enemy.atk;
+                let isEvaded = false;
+
+                if (player.name === "森鴎外" && Math.random() < 0.20) {
+                    isEvaded = true;
+                    abilityLog += "【能力発動】『舞姫』！敵の攻撃を華麗に回避！<br>";
+                }
+
+                if (isEvaded) {
+                    actionLog = `❌不正解… 正解は ${currentQuizAnswer}。しかし、敵の攻撃を回避した！`;
+                } else {
+                    if (player.name === "宮沢賢治") {
+                        enemyDamage = Math.max(1, enemyDamage - 5);
+                        abilityLog += "【能力発動】『雨ニモマケズ』！受けるダメージを5軽減！<br>";
+                    }
+
+                    if (playerShield > 0) {
+                        if (playerShield >= enemyDamage) {
+                            playerShield -= enemyDamage;
+                            actionLog = `❌不正解… 正解は ${currentQuizAnswer}。誤答ペナルティ反撃！シールドが ${enemyDamage} 吸収！`;
+                        } else {
+                            let pierceDamage = enemyDamage - playerShield;
+                            playerShield = 0;
+                            player.hp -= pierceDamage;
+                            actionLog = `❌不正解… 正解は ${currentQuizAnswer}。シールド破損、本体に ${pierceDamage} ダメージ！`;
+                        }
+                    } else {
+                        player.hp -= enemyDamage;
+                        actionLog = `❌不正解… 正解は ${currentQuizAnswer}。手痛いペナルティ反撃！ ${enemyDamage} のダメージ！`;
+                    }
+
+                    if (player.name === "芥川龍之介") {
+                        enemy.hp -= 10;
+                        player.hp = Math.min(player.maxHp, player.hp + 10);
+                        abilityLog += "【能力発動】『蜘蛛の糸』！地獄の底から敵の命を10吸い取った！<br>";
+                    }
+                }
+
+                log.style.color = "#ff4d4d";
+            }
+
+            if (!isGameover && player.name === "鷺沢萠" && enemy.hp > 0 && player.hp > 0) {
+                enemy.hp -= 10;
+                abilityLog += "【能力発動】『駆ける少年の衝動』！ターン終了時に敵のHPを10削る！<br>";
+            }
+
+            log.innerHTML = (abilityLog !== "" ? abilityLog : "") + actionLog;
+
+            updateDisplay();
+
+            if (!checkBattleOver()) {
+                const buttons = document.querySelectorAll('.btn');
+                buttons.forEach(b => b.disabled = true);
+                setTimeout(nextTurn, 2000); 
+            }
+        }
+
+        function checkBattleOver() {
+            if (isGameover || !player || !enemy) return true;
+            const log = document.getElementById('log-text');
+
+            if (enemy.hp <= 0) {
+                isGameover = true;
+                if(enemyAttackTimer) clearInterval(enemyAttackTimer);
+                setTimeout(() => {
+                    log.innerHTML = `🎉 勝負あり！ ${enemy.name} を撃破した！ あなたの勝利です！`;
+                    log.style.color = "#dab358";
+                    showResetButton();
+                }, 500);
+                return true;
+            } else if (player.hp <= 0) {
+                isGameover = true;
+                if(enemyAttackTimer) clearInterval(enemyAttackTimer);
+                setTimeout(() => {
+                    log.innerHTML = `💀 勝負あり！ ${player.name} が倒れた… あなたの敗北です。`;
+                    log.style.color = "#ff4d4d";
+                    showResetButton();
+                }, 500);
+                return true;
+            }
+            return false;
+        }
+
+        function showResetButton() {
+            const container = document.getElementById('options-container');
+            container.innerHTML = "";
+            const resetBtn = document.createElement('button');
+            resetBtn.className = "btn";
+            resetBtn.style.gridColumn = "span 2";
+            resetBtn.style.backgroundColor = "#dab358";
+            resetBtn.style.color = "black";
+            resetBtn.innerText = "タイトル（ルール）に戻る";
+            resetBtn.onclick = function() {
+                player = null;
+                enemy = null;
+                document.getElementById('battle-screen').style.display = "none";
+                document.getElementById('rules-screen').style.display = "block";
+            };
+            container.appendChild(resetBtn);
+        }
+    </script>
+</body>
+</html>
