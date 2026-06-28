@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>国語便覧 文豪バトル（完全版）</title>
+    <title>国語便覧 文豪バトル（難易度選択版）</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -86,6 +86,41 @@
             flex: 1;
         }
         .online-btn { background: linear-gradient(135deg, #00ffcc, #00b399); }
+        
+        /* 難易度選択用のスタイル */
+        .level-container {
+            background-color: #2a2a2a;
+            border: 2px solid #ff4d4d;
+            padding: 25px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            display: none;
+        }
+        .level-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .level-btn {
+            background: linear-gradient(135deg, #444, #222);
+            color: white;
+            border: 2px solid #555;
+            border-radius: 6px;
+            padding: 12px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 1em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .level-btn:hover { border-color: #ff4d4d; background: #333; }
+        .level-title-text { font-weight: bold; color: #ff4d4d; }
+        .level-info-text { font-size: 0.85em; color: #ccc; }
+
         .select-container {
             background-color: #2a2a2a;
             border: 2px solid #dab358;
@@ -231,12 +266,38 @@
         <div class="user-badge" id="login-user-badge">ログイン中</div>
 
         <div id="rules-screen" class="rules-container">
-            <h2>📜 对戦ルール説明</h2>
+            <h2>📜 対戦ルール説明</h2>
             <p>出題される作品や解説を読み、正しい文豪の名前を4択から選んでください。</p>
             <p>文豪ごとに超強力な特殊パッシブスキルが自動で発動します！オンラインでリアルタイムに噛み合うバトルの面白さをご体感ください。</p>
             <div class="mode-select-btns">
-                <button class="start-nav-btn" onclick="goToSelectScreen(false)">👤 一人で遊ぶ</button>
-                <button class="start-nav-btn online-btn" onclick="goToSelectScreen(true)">🌐 オンライン対戦</button>
+                <button class="start-nav-btn" onclick="goToModeSelect(false)">👤 一人で遊ぶ</button>
+                <button class="start-nav-btn online-btn" onclick="goToModeSelect(true)">🌐 オンライン対戦</button>
+            </div>
+        </div>
+
+        <div id="level-select" class="level-container">
+            <h2>🤖 CPUの強さを選択</h2>
+            <div class="level-grid">
+                <button class="level-btn" onclick="selectCpuLevel(1)">
+                    <span class="level-title-text">レベル 1</span>
+                    <span class="level-info-text">HP: 250 / ATK: 30 / 間隔: 7.0秒</span>
+                </button>
+                <button class="level-btn" onclick="selectCpuLevel(2)">
+                    <span class="level-title-text" style="color:#ffaa00;">レベル 2</span>
+                    <span class="level-info-text">HP: 400 / ATK: 45 / 間隔: 5.5秒</span>
+                </button>
+                <button class="level-btn" onclick="selectCpuLevel(3)">
+                    <span class="level-title-text" style="color:#ff5500;">レベル 3</span>
+                    <span class="level-info-text">HP: 600 / ATK: 60 / 間隔: 5.0秒</span>
+                </button>
+                <button class="level-btn" onclick="selectCpuLevel(4)">
+                    <span class="level-title-text" style="color:#ff0000;">レベル 4</span>
+                    <span class="level-info-text">HP: 800 / ATK: 75 / 間隔: 4.0秒</span>
+                </button>
+                <button class="level-btn" onclick="selectCpuLevel(5)">
+                    <span class="level-title-text" style="color:#cc00ff;">レベル 5 (極限)</span>
+                    <span class="level-info-text">HP: 1000 / ATK: 90 / 間隔: 2.5秒</span>
+                </button>
             </div>
         </div>
 
@@ -266,7 +327,7 @@
                 </div>
                 <div style="font-size: 2em; align-self: center; color: #dab358;">VS</div>
                 <div class="card">
-                    <div style="font-size:0.8em; color:#aaa;">相手</div>
+                    <div style="font-size:0.8em; color:#aaa;" id="e-role-label">相手</div>
                     <div class="card-name" id="e-name">待機中...</div>
                     <div class="stat hp" id="e-hp-display">HP: ---</div>
                     <div class="stat" id="e-shield-display" style="display:none; color:#00ffcc;">シールド: 0</div>
@@ -408,11 +469,38 @@
         
         let syncLockUntil = 0;
 
-        function goToSelectScreen(online) {
+        // 🤖 CPU戦の難易度設定データ
+        let selectedCpuLevel = 1;
+        const cpuLevelSettings = {
+            1: { hp: 250, atk: 30, interval: 7000, name: "CPU (Lv.1)" },
+            2: { hp: 400, atk: 45, interval: 5500, name: "CPU (Lv.2)" },
+            3: { hp: 600, atk: 60, interval: 5000, name: "CPU (Lv.3)" },
+            4: { hp: 800, atk: 75, interval: 4000, name: "CPU (Lv.4)" },
+            5: { hp: 1000, atk: 90, interval: 2500, name: "CPU (Lv.5)" }
+        };
+
+        // 最初のナビゲーション分岐
+        function goToModeSelect(online) {
             isOnlineMode = online;
             document.getElementById('rules-screen').style.display = "none";
+            
+            if (online) {
+                // オンラインなら直接キャラ選択画面へ
+                document.getElementById('character-select').style.display = "block";
+                document.getElementById('online-setup').style.display = "flex";
+                createSelectScreen();
+            } else {
+                // 一人プレイなら難易度選択画面へ
+                document.getElementById('level-select').style.display = "block";
+            }
+        }
+
+        // 🤖 難易度決定後にキャラ選択へ進む
+        function selectCpuLevel(level) {
+            selectedCpuLevel = level;
+            document.getElementById('level-select').style.display = "none";
             document.getElementById('character-select').style.display = "block";
-            document.getElementById('online-setup').style.display = online ? "flex" : "none";
+            document.getElementById('online-setup').style.display = "none";
             createSelectScreen();
         }
 
@@ -439,9 +527,21 @@
 
         function startOfflineGame(index) {
             player = { ...bungoData[index] };
-            let enemyIndex = (index + 1) % bungoData.length;
-            enemy = { ...bungoData[enemyIndex], name: "CPU" };
+            
+            // 選んだ難易度データをCPUにセット
+            const cpuConfig = cpuLevelSettings[selectedCpuLevel];
+            enemy = { 
+                name: cpuConfig.name, 
+                hp: cpuConfig.hp, 
+                maxHp: cpuConfig.hp, 
+                atk: cpuConfig.atk, 
+                baseAtk: cpuConfig.atk, 
+                abName: "なし", 
+                desc: "難易度調整された自動攻撃" 
+            };
+            
             initAbilities();
+            document.getElementById('e-role-label').innerText = `相手 (${cpuConfig.name})`;
             document.getElementById('character-select').style.display = "none";
             document.getElementById('battle-screen').style.display = "flex";
             updateDisplay(); nextTurn();
@@ -466,6 +566,7 @@
             enemy = { name: "待機中...", hp: 100, maxHp: 100, atk: 0, baseAtk: 0, abName: "-", desc: "" };
             initAbilities();
 
+            document.getElementById('e-role-label').innerText = "相手";
             document.getElementById('character-select').style.display = "none";
             document.getElementById('battle-screen').style.display = "flex";
             document.getElementById('log-text').innerText = "対戦相手の入室を待っています...";
@@ -604,11 +705,12 @@
                 container.appendChild(btn);
             });
 
-            // 🤖 【CPU対戦のみ】4.5秒（4500ミリ秒）間、回答がない場合にCPUが先制攻撃してくるタイマー
+            // 🤖 【選択された難易度の秒数】でCPUが攻撃してくるタイマーを始動
             if (!isOnlineMode) {
+                const currentInterval = cpuLevelSettings[selectedCpuLevel].interval;
                 cpuAttackTimer = setTimeout(() => {
                     handleCpuTimeAttack();
-                }, 4500);
+                }, currentInterval);
             }
         }
 
@@ -617,7 +719,7 @@
             if (isGameover || isOnlineMode) return;
             
             const log = document.getElementById('log-text');
-            let logMsg = "⏳ 時間切れ！思考停止している間に CPU が攻撃してきた！";
+            let logMsg = `⏳ 時間切れ！CPU (Lv.${selectedCpuLevel}) の猛攻が直撃！`;
             
             let penalty = enemy.atk || 30;
             
@@ -637,7 +739,6 @@
                 logMsg += ` あなたは ${penalty} ダメージを受けた！`;
             }
 
-            // 特殊スキルのチェック
             if(player.hp <= 50 && player.hp > 0 && player.abName === "忍ぶ川の情愛" && !hasShinubugawaTriggered) {
                 player.hp += 40; hasShinubugawaTriggered = true;
                 logMsg += " 【忍ぶ川の情愛】HP40回復！";
@@ -658,7 +759,7 @@
         async function handleAnswer(selectedName) {
             if(isGameover) return;
             if(isOnlineMode && enemy.hp <= 0) return;
-            if(cpuAttackTimer) clearTimeout(cpuAttackTimer); // 回答されたらCPU攻撃タイマーをストップ
+            if(cpuAttackTimer) clearTimeout(cpuAttackTimer); 
 
             syncLockUntil = Date.now() + 1500;
 
@@ -686,7 +787,7 @@
                     let hpRatio = (player.maxHp - player.hp) / player.maxHp;
                     let mult = 1.0 + (hpRatio * 0.5);
                     dmg = Math.floor(dmg * mult);
-                    logMsg += "【鮮烈なる檸檬】減少HP比例の追撃！ ";
+                    logMsg += "【鮮烈なる檸檬】減少HP比例的追撃！ ";
                 }
                 if(player.abName === "野間宏" && player.hp <= (player.maxHp * 0.3)) {
                     dmg = Math.floor(dmg * 1.4);
@@ -748,6 +849,11 @@
             } else {
                 comboCount = 0;
                 let penalty = isOnlineMode ? (enemy.atk || 30) : 30;
+
+                // 一人プレイ時は選んだCPU難易度のATKがミス時の反撃ダメージになる
+                if (!isOnlineMode) {
+                    penalty = enemy.atk;
+                }
 
                 if(player.abName === "砂の壁") {
                     penalty = 0;
