@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>国語便覧 文豪バトル（難易度選択版）</title>
+    <title>国語便覧 文豪バトル（称号・セーブ対応版）</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -64,7 +64,35 @@
             cursor: pointer;
             text-decoration: underline;
         }
-        .game-main-content { display: none; flex-direction: column; align-items: center; width: 100%; }
+        .game-main-content { display: none; flex-direction: column; align-items: center; width: 100%; position: relative; }
+        
+        /* ユーザー情報＆右上称号の配置レイアウト */
+        .user-status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 950px;
+            margin-bottom: 15px;
+        }
+        .user-badge {
+            font-size: 0.85em;
+            color: #00ffcc;
+            background-color: #222;
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+        .title-badge {
+            font-size: 0.85em;
+            color: #fff;
+            background: linear-gradient(135deg, #b08b35, #dab358);
+            color: black;
+            font-weight: bold;
+            padding: 6px 14px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
         .rules-container {
             background-color: #2a2a2a;
             border: 2px solid #dab358;
@@ -87,7 +115,6 @@
         }
         .online-btn { background: linear-gradient(135deg, #00ffcc, #00b399); }
         
-        /* 難易度選択用のスタイル */
         .level-container {
             background-color: #2a2a2a;
             border: 2px solid #ff4d4d;
@@ -156,6 +183,7 @@
         .select-name { font-size: 1.1em; font-weight: bold; color: #dab358; }
         .select-stats { font-size: 0.85em; color: #ccc; margin: 4px 0; }
         .select-ability { font-size: 0.75em; color: #00ffcc; background-color: #111; padding: 4px; border-radius: 4px; margin-top: 5px; line-height: 1.3; }
+        
         .online-setup-box {
             background-color: #1a1a1a;
             border: 2px solid #00ffcc;
@@ -238,14 +266,6 @@
             justify-content: center;
             text-align: center;
         }
-        .user-badge {
-            font-size: 0.8em;
-            color: #00ffcc;
-            margin-bottom: 15px;
-            background-color: #222;
-            padding: 5px 10px;
-            border-radius: 20px;
-        }
     </style>
 </head>
 <body>
@@ -263,10 +283,13 @@
     </div>
 
     <div id="game-main-content" class="game-main-content">
-        <div class="user-badge" id="login-user-badge">ログイン中</div>
+        <div class="user-status-bar">
+            <div class="user-badge" id="login-user-badge">ログイン中</div>
+            <div class="title-badge" id="user-title-display">称号: なし</div>
+        </div>
 
         <div id="rules-screen" class="rules-container">
-            <h2>📜 対戦ルール説明</h2>
+            <h2>📜 对戦ルール説明</h2>
             <p>出題される作品や解説を読み、正しい文豪の名前を4択から選んでください。</p>
             <p>文豪ごとに超強力な特殊パッシブスキルが自動で発動します！オンラインでリアルタイムに噛み合うバトルの面白さをご体感ください。</p>
             <div class="mode-select-btns">
@@ -348,6 +371,22 @@
         const SUPABASE_KEY = "sb_publishable_yP1Xswfbs9_K0-1CoSimPw_p1TXzzxd";
         let currentAuthMode = "login"; 
         let loginUserToken = "";
+        let loginUserId = "";
+
+        // 🏆 ユーザーセーブデータ（後からいくらでも拡張可能です）
+        let userProfile = {
+            highest_level: 0,
+            current_title: "なし"
+        };
+
+        // 🌟 レベルクリア報酬の称号定義（後から追加・変更が超簡単です！）
+        const titleRewards = {
+            1: "初学者です",
+            2: "文学楽しい",
+            3: "便覧愛読者",
+            4: "便覧多読者",
+            5: "便覧猛読者"
+        };
 
         async function handleAuth() {
             const email = document.getElementById('auth-email').value;
@@ -366,17 +405,21 @@
                     body: JSON.stringify({ email, password })
                 });
                 const data = await res.json();
-                if(!res.ok) { msgElm.innerText = "認証失敗"; return; }
+                if(!res.ok) { msgElm.innerText = "認証失敗: " + (data.error_description || data.message || ""); return; }
 
                 if(currentAuthMode === "signup") {
                     msgElm.innerText = "アカウント作成成功！ログインしてください。"; toggleAuthMode();
                 } else {
                     loginUserToken = data.access_token;
+                    loginUserId = data.user.id;
                     document.getElementById('auth-screen').style.display = "none";
                     document.getElementById('game-main-content').style.display = "flex";
-                    document.getElementById('login-user-badge').innerText = `👤 ログイン中: ${data.user.email}`;
+                    document.getElementById('login-user-badge').innerText = `👤 ${data.user.email}`;
+                    
+                    // 💾 ログイン成功時にクラウドからセーブデータをロード
+                    await loadUserProfile();
                 }
-            } catch(e) { msgElm.innerText = "エラー"; }
+            } catch(e) { msgElm.innerText = "エラーが発生しました"; }
         }
 
         function toggleAuthMode() {
@@ -385,14 +428,73 @@
         }
 
         async function supabaseFetch(endpoint, options = {}) {
-            const headers = { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json", "Prefer": "return=representation" };
+            const headers = { 
+                "apikey": SUPABASE_KEY, 
+                "Authorization": `Bearer ${loginUserToken || SUPABASE_KEY}`, 
+                "Content-Type": "application/json", 
+                "Prefer": "return=representation" 
+            };
             return fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, { ...options, headers: { ...headers, ...options.headers } });
         }
 
+        // 💾 クラウドからデータを読み込む処理
+        async function loadUserProfile() {
+            try {
+                const res = await supabaseFetch(`profiles?id=eq.${loginUserId}`, { method: "GET" });
+                const data = await res.json();
+                
+                if (data && data.length > 0) {
+                    userProfile.highest_level = data[0].highest_level || 0;
+                    userProfile.current_title = data[0].current_title || "なし";
+                } else {
+                    // まだデータがない新規ユーザーの場合は初期作成
+                    await supabaseFetch("profiles", {
+                        method: "POST",
+                        body: JSON.stringify({ id: loginUserId, highest_level: 0, current_title: "なし" })
+                    });
+                }
+                updateTitleDisplay();
+            } catch (e) {
+                console.error("セーブデータの読み込みに失敗しました", e);
+            }
+        }
+
+        // 💾 クラウドへデータを保存・更新する処理
+        async function saveUserProfile(newLevel) {
+            if (!loginUserId) return;
+            
+            // 現在のクリアレベルより高い、かつ新しい称号がある場合のみ更新
+            if (newLevel > userProfile.highest_level) {
+                userProfile.highest_level = newLevel;
+                if (titleRewards[newLevel]) {
+                    userProfile.current_title = titleRewards[newLevel];
+                }
+                
+                try {
+                    await supabaseFetch(`profiles?id=eq.${loginUserId}`, {
+                        method: "PATCH",
+                        body: JSON.stringify({ 
+                            highest_level: userProfile.highest_level, 
+                            current_title: userProfile.current_title 
+                        })
+                    });
+                    updateTitleDisplay();
+                } catch (e) {
+                    console.error("データの保存に失敗しました", e);
+                }
+            }
+        }
+
+        function updateTitleDisplay() {
+            document.getElementById('user-title-display').innerText = `🎖️ 称号: ${userProfile.current_title}`;
+        }
+
+        // 22名の文豪データ
         const bungoData = [
             { name: "太宰治", hp: 240, maxHp: 240, atk: 35, baseAtk: 35, abName: "人間失格", desc: "HPが半分以下になると攻撃力1.3倍" },
             { name: "夏目漱石", hp: 360, maxHp: 360, atk: 25, baseAtk: 25, abName: "月が綺麗ですね", desc: "正解時25%の確率でHP30回復" },
-            { name: "芥川龍之介", hp: 200, maxHp: 200, atk: 40, baseAtk: 40, abName: "蜘蛛の糸", desc: "被弾時、敵のHPを10奪って回復する" },
+            // 💡 芥川龍之介の能力説明を修正
+            { name: "芥川龍之介", hp: 200, maxHp: 200, atk: 40, baseAtk: 40, abName: "蜘蛛の糸", desc: "自分がクイズに正解した時、敵のHPを10奪って回復する" },
             { name: "中島敦", hp: 300, maxHp: 300, atk: 30, baseAtk: 30, abName: "月下獣", desc: "最初の正解時のみ与ダメージが2倍" },
             { name: "森鴎外", hp: 320, maxHp: 320, atk: 28, baseAtk: 28, abName: "舞姫", desc: "20%の確率で敵の攻撃を完全回避" },
             { name: "宮沢賢治", hp: 280, maxHp: 280, atk: 32, baseAtk: 32, abName: "雨ニモマケズ", desc: "受ける全てのダメージを一律5軽減" },
@@ -469,7 +571,7 @@
         
         let syncLockUntil = 0;
 
-        // 🤖 CPU戦の難易度設定データ
+        // CPU難易度設定
         let selectedCpuLevel = 1;
         const cpuLevelSettings = {
             1: { hp: 250, atk: 30, interval: 7000, name: "CPU (Lv.1)" },
@@ -479,23 +581,19 @@
             5: { hp: 1000, atk: 90, interval: 2500, name: "CPU (Lv.5)" }
         };
 
-        // 最初のナビゲーション分岐
         function goToModeSelect(online) {
             isOnlineMode = online;
             document.getElementById('rules-screen').style.display = "none";
             
             if (online) {
-                // オンラインなら直接キャラ選択画面へ
                 document.getElementById('character-select').style.display = "block";
                 document.getElementById('online-setup').style.display = "flex";
                 createSelectScreen();
             } else {
-                // 一人プレイなら難易度選択画面へ
                 document.getElementById('level-select').style.display = "block";
             }
         }
 
-        // 🤖 難易度決定後にキャラ選択へ進む
         function selectCpuLevel(level) {
             selectedCpuLevel = level;
             document.getElementById('level-select').style.display = "none";
@@ -528,7 +626,6 @@
         function startOfflineGame(index) {
             player = { ...bungoData[index] };
             
-            // 選んだ難易度データをCPUにセット
             const cpuConfig = cpuLevelSettings[selectedCpuLevel];
             enemy = { 
                 name: cpuConfig.name, 
@@ -537,7 +634,7 @@
                 atk: cpuConfig.atk, 
                 baseAtk: cpuConfig.atk, 
                 abName: "なし", 
-                desc: "難易度調整された自動攻撃" 
+                desc: "自動攻撃" 
             };
             
             initAbilities();
@@ -584,7 +681,7 @@
             } else {
                 const res = await supabaseFetch(`rooms?id=eq.${currentRoomId}`, { method: "GET" });
                 const rooms = await res.json();
-                if(!rooms || rooms.length === 0) { alert("部屋が見つかりません。ホストが作成するまでお待ちください。"); location.reload(); return; }
+                if(!rooms || rooms.length === 0) { alert("部屋が見つかりません。"); location.reload(); return; }
                 
                 const room = rooms[0];
                 const hData = room.h_ab.split('_');
@@ -705,7 +802,6 @@
                 container.appendChild(btn);
             });
 
-            // 🤖 【選択された難易度の秒数】でCPUが攻撃してくるタイマーを始動
             if (!isOnlineMode) {
                 const currentInterval = cpuLevelSettings[selectedCpuLevel].interval;
                 cpuAttackTimer = setTimeout(() => {
@@ -714,7 +810,6 @@
             }
         }
 
-        // 🤖 CPUの時間経過攻撃処理
         function handleCpuTimeAttack() {
             if (isGameover || isOnlineMode) return;
             
@@ -798,6 +893,14 @@
                     logMsg += "【熱き輝ける闇】2倍ダメージ！ ";
                 }
 
+                // 💡 芥川龍之介のパッシブスキル修正（自分が正解して攻撃した時に10ドレイン）
+                if(player.abName === "蜘蛛の糸") {
+                    let stealAmount = 10;
+                    enemy.hp = Math.max(0, enemy.hp - stealAmount);
+                    player.hp = Math.min(player.maxHp, player.hp + stealAmount);
+                    logMsg += "【蜘蛛の糸】で敵のHPを10奪って自分の力にした！ ";
+                }
+
                 let isEvaded = false;
                 if(enemy.abName === "森鴎外" && Math.random() < 0.20) isEvaded = true;
                 if(enemy.abName === "幸田文" && Math.random() < 0.15) isEvaded = true;
@@ -832,12 +935,6 @@
                     logMsg += "【個人的な神話】ATKが永続で+3成長！";
                 }
 
-                if(enemy.abName === "蜘蛛の糸" && !isEvaded) {
-                    player.hp = Math.max(1, player.hp - 10);
-                    enemy.hp = Math.min(enemy.maxHp, enemy.hp + 10);
-                    logMsg += " ➔ 敵の【蜘蛛の糸】で10ドレイン反撃！";
-                }
-
                 log.innerText = logMsg; log.style.color = "#00ffcc";
 
                 if(isOnlineMode) {
@@ -850,7 +947,6 @@
                 comboCount = 0;
                 let penalty = isOnlineMode ? (enemy.atk || 30) : 30;
 
-                // 一人プレイ時は選んだCPU難易度のATKがミス時の反撃ダメージになる
                 if (!isOnlineMode) {
                     penalty = enemy.atk;
                 }
@@ -910,7 +1006,18 @@
                 isGameover = true; 
                 if(onlineSyncTimer) clearInterval(onlineSyncTimer);
                 if(cpuAttackTimer) clearTimeout(cpuAttackTimer);
-                log.innerText = `🎉 勝負あり！対戦相手の ${enemy.name} を撃破！あなたの勝利です！`;
+                
+                let winMsg = `🎉 勝負あり！対戦相手の ${enemy.name} を撃破！あなたの勝利です！`;
+                
+                // 🤖 一人プレイ時に勝利した場合、クラウドに結果をセーブ（称号が更新されます）
+                if (!isOnlineMode) {
+                    saveUserProfile(selectedCpuLevel);
+                    if (titleRewards[selectedCpuLevel] && selectedCpuLevel > userProfile.highest_level) {
+                        winMsg += `\n🎖️ 称号【${titleRewards[selectedCpuLevel]}】を新たに獲得しました！`;
+                    }
+                }
+                
+                log.innerText = winMsg;
                 log.style.color = "#dab358"; showResetButton(); return true;
             } else if(player.hp <= 0) {
                 isGameover = true; 
@@ -928,7 +1035,11 @@
             const rBtn = document.createElement('button');
             rBtn.className = "btn"; rBtn.style.gridColumn = "span 2"; rBtn.style.backgroundColor = "#dab358"; rBtn.style.color = "black";
             rBtn.innerText = "タイトルに戻る";
-            rBtn.onclick = () => location.reload();
+            rBtn.onclick = () => {
+                // バトル終了時に一度リセットしてホームへ
+                document.getElementById('battle-screen').style.display = "none";
+                document.getElementById('rules-screen').style.display = "block";
+            };
             container.appendChild(rBtn);
         }
     </script>
