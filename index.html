@@ -26,6 +26,57 @@
             font-size: 0.9em;
         }
 
+        /* 【新設】ルール説明画面のスタイル */
+        .rules-container {
+            background-color: #2a2a2a;
+            border: 2px solid #dab358;
+            padding: 25px;
+            border-radius: 10px;
+            max-width: 650px;
+            width: 100%;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+            display: block; /* 最初に見せる */
+        }
+        .rules-content {
+            text-align: left;
+            line-height: 1.6;
+            font-size: 0.95em;
+        }
+        .rules-content h3 {
+            color: #dab358;
+            border-bottom: 1px solid #555;
+            padding-bottom: 5px;
+            margin-top: 20px;
+        }
+        .rules-content ul {
+            padding-left: 20px;
+        }
+        .ability-list-item {
+            margin-bottom: 6px;
+        }
+        .highlight-text {
+            color: #00ffcc;
+            font-weight: bold;
+        }
+        .start-nav-btn {
+            background: linear-gradient(135deg, #dab358, #b08b35);
+            color: black;
+            border: none;
+            border-radius: 8px;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 25px;
+            width: 100%;
+            box-shadow: 0 4px 10px rgba(218, 179, 88, 0.3);
+            transition: all 0.2s;
+        }
+        .start-nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(218, 179, 88, 0.5);
+        }
+
         /* キャラクター選択画面のスタイル */
         .select-container {
             background-color: #2a2a2a;
@@ -36,6 +87,7 @@
             width: 100%;
             text-align: center;
             box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+            display: none; /* 最初は隠す */
         }
         .select-grid {
             display: grid;
@@ -187,6 +239,33 @@
     <h1>国語便覧 文豪バトル</h1>
     <p class="subtitle">正しい知識を選び、特殊能力で勝利を掴め！</p>
 
+    <div id="rules-screen" class="rules-container">
+        <h2>📜 対戦ルール説明</h2>
+        <div class="rules-content">
+            <h3>⚔️ 基本ルール</h3>
+            <ul>
+                <li>出題される文学的特徴やエピソード（お題）を読み、正しい文豪の名前を4択から選んでください。</li>
+                <li><span class="highlight-text">正解時</span>：自分の文豪が持つATK（攻撃力）で相手にダメージを与えます。</li>
+                <li><span class="highlight-text">不正解時</span>：相手の文豪から反撃（ダメージ）を受けてしまいます。</li>
+                <li>先に相手のHPを0にした方の勝利となります。</li>
+            </ul>
+
+            <h3>⚡ 文豪たちの特殊能力</h3>
+            <ul>
+                <li class="ability-list-item"><strong>太宰治【人間失格】</strong>: HP半分以下になると、自身のATKが1.3倍に跳ね上がる。</li>
+                <li class="ability-list-item"><strong>夏目漱石【月が綺麗ですね】</strong>: クイズ正解時、25%の確率で自身のHPを30回復する。</li>
+                <li class="ability-list-item"><strong>芥川龍之介【蜘蛛の糸】</strong>: 不正解でダメージを受けた際、敵のHPを10奪って自分を回復する。</li>
+                <li class="ability-list-item"><strong>中島敦【月下獣】</strong>: 最初の正解時のみ、与えるダメージが2倍になる。</li>
+                <li class="ability-list-item"><strong>森鴎外【舞姫】</strong>: 20%の確率で、敵からの攻撃を完全に見切って回避（ノーダメージ）する。</li>
+                <li class="ability-list-item"><strong>宮沢賢治【雨ニモマケズ】</strong>: 受けるダメージを常に「5」軽減する。</li>
+                <li class="ability-list-item"><strong>鴨長明【無常観】</strong>: クイズに<span class="highlight-text">5問連続正解</span>すると、敵のATKを永久に半減させる。</li>
+                <li class="ability-list-item"><strong>重松清【親心のバリア】</strong>: バトル開始時、敵の攻撃を防ぐ耐久値40のシールドを張る。</li>
+                <li class="ability-list-item"><strong>鷺沢萠【駆ける少年の衝動】</strong>: 毎ターン終了時、敵のHPに10の固定ダメージを与える。</li>
+            </ul>
+        </div>
+        <button class="start-nav-btn" onclick="goToSelectScreen()">ゲームスタート（文豪を選ぶ）</button>
+    </div>
+
     <div id="character-select" class="select-container">
         <h2>あなたの出陣する文豪（デッキ）を選べ！</h2>
         <div class="select-grid" id="select-grid-container"></div>
@@ -223,15 +302,15 @@
     </div>
 
     <script>
-        // 文豪データ（特殊能力データを追加！）
+        // 文豪データ（鴨長明の能力調整を適用！）
         const bungoData = [
-            { name: "太宰治", hp: 120, maxHp: 120, atk: 35, hint: "「恥の多い生涯を送って来ました」で始まる『人間失格』の著者。心中未遂を繰り返した。", abName: "人間失格", abDesc: "HP半分以下でATK1.5倍" },
+            { name: "太宰治", hp: 120, maxHp: 120, atk: 35, hint: "「恥の多い生涯を送って来ました」で始まる『人間失格』の著者。心中未遂を繰り返した。", abName: "人間失格", abDesc: "HP半分以下でATK1.3倍" },
             { name: "夏目漱石", hp: 180, maxHp: 180, atk: 25, hint: "イギリス留学で神経衰弱になる。『吾輩は猫である』で一躍有名に。「月が綺麗ですね」の逸話も。", abName: "月が綺麗ですね", abDesc: "正解時25%の確率でHP30回復" },
-            { name: "芥川龍之介", hp: 100, maxHp: 100, atk: 40, hint: "『羅生門』『鼻』の著者。ぼんやりとした不安を理由に35歳で早世。彼の名を冠した文学賞がある。", abName: "蜘蛛の糸", abDesc: "不正解時、敵HPを15ドレイン" },
+            { name: "芥川龍之介", hp: 100, maxHp: 100, atk: 40, hint: "『羅生門』『鼻』の著者。ぼんやりとした不安を理由に35歳で早世。彼の名を冠した文学賞がある。", abName: "蜘蛛の糸", abDesc: "不正解時、敵HPを10ドレイン" },
             { name: "中島敦", hp: 150, maxHp: 150, atk: 30, hint: "『山月記』の著者。喘息のため33歳で早世。国語の教科書で虎になる男といえばこの人。", abName: "月下獣", abDesc: "最初の正解時のみ攻撃力2倍" },
-            { name: "森鴎外", hp: 160, maxHp: 160, atk: 28, hint: "小説家でありながら、本職は「軍医（陸軍軍医総監）」。代表作は『舞姫』『高瀬舟』。", abName: "冷徹な軍医", abDesc: "20%の確率で敵攻撃を完全回避" },
+            { name: "森鴎外", hp: 160, maxHp: 160, atk: 28, hint: "小説家でありながら、本職は「軍医（陸軍軍医総監）」。代表作は『舞姫』『高瀬舟』。", abName: "舞姫", abDesc: "20%の確率で敵攻撃を完全回避" },
             { name: "宮沢賢治", hp: 140, maxHp: 140, atk: 32, hint: "岩手県出身。農業指導をしながら『銀河鉄道の夜』や『注文の多い料理店』を執筆した。", abName: "雨ニモマケズ", abDesc: "受けるダメージを常に5軽減" },
-            { name: "鴨長明", hp: 110, maxHp: 110, atk: 38, hint: "「ゆく河の流れは絶えずして、しかももとの水にあらず」で始まる鎌倉時代の随筆『方丈記』の著者。", abName: "無常観の押し付け", abDesc: "計3回正解で敵ATKを永久半減" },
+            { name: "鴨長明", hp: 110, maxHp: 110, atk: 38, hint: "「ゆく河の流れは絶えずして、しかももとの水にあらず」で始まる鎌倉時代の随筆『方丈記』の著者。", abName: "無常観", abDesc: "5問連続正解で敵ATKを永久半減" },
             { name: "重松清", hp: 160, maxHp: 160, atk: 26, hint: "現代の作家。いじめや家族、思春期の葛藤をテーマにした『ナイフ』『エイジ』『とんび』などで知られる。", abName: "親心のバリア", abDesc: "開始時に耐久値40のシールド" },
             { name: "鷺沢萠", hp: 130, maxHp: 130, atk: 34, hint: "現役女子大生作家として注目され『川べりの道』や『駆ける少年』を発表。若者の孤独を瑞々しく描いた。", abName: "駆ける少年の衝動", abDesc: "毎ターン終了時敵に10ダメージ" }
         ];
@@ -242,10 +321,17 @@
         let isGameover = false;
 
         // 特殊能力用の管理変数
-        let playerCorrectCount = 0;
+        let playerStreakCount = 0; // 連続正解数のカウント用
         let playerShield = 0;
         let isAtsushiTriggered = false;
         let isChomeiTriggered = false;
+
+        // ルール画面からキャラ選択画面へ移動
+        function goToSelectScreen() {
+            document.getElementById('rules-screen').style.display = "none";
+            document.getElementById('character-select').style.display = "block";
+            createSelectScreen();
+        }
 
         function createSelectScreen() {
             const grid = document.getElementById('select-grid-container');
@@ -276,12 +362,11 @@
             enemy = { ...bungoData[eIndex] };
 
             // バトル状態リセット
-            playerCorrectCount = 0;
+            playerStreakCount = 0;
             playerShield = 0;
             isAtsushiTriggered = false;
             isChomeiTriggered = false;
 
-            // 重松清のシールド初期化
             if (player.name === "重松清") {
                 playerShield = 40;
             }
@@ -303,7 +388,6 @@
 
         function updateDisplay() {
             document.getElementById('p-name').innerText = player.name;
-            // シールドがある場合はHP表記に足す
             const hpText = playerShield > 0 ? `${Math.max(0, player.hp)} (+${playerShield})` : Math.max(0, player.hp);
             document.getElementById('p-hp').innerText = hpText;
             document.getElementById('p-atk').innerText = Math.floor(player.atk);
@@ -351,13 +435,13 @@
 
             if (selectedName === currentQuizAnswer) {
                 // --- 【正解時】プレイヤーの攻撃 ---
-                playerCorrectCount++;
+                playerStreakCount++; // 連正解数を増やす
                 let damage = player.atk;
 
-                // 太宰治：HP半分以下で攻撃力1.5倍
+                // 太宰治：HP半分以下で攻撃力1.3倍
                 if (player.name === "太宰治" && player.hp <= (player.maxHp / 2)) {
-                    damage = Math.floor(damage * 1.5);
-                    abilityLog += "【能力発動】『人間失格』！窮地により攻撃力1.5倍！<br>";
+                    damage = Math.floor(damage * 1.3);
+                    abilityLog += "【能力発動】『人間失格』！窮地により攻撃力1.3倍！<br>";
                 }
 
                 // 中島敦：最初の1回目のみ攻撃力2倍
@@ -368,44 +452,48 @@
                 }
 
                 enemy.hp -= damage;
-                actionLog = `⭕正解！ ${player.name} の攻撃！ ${enemy.name} に ${damage} のダメージ！`;
+                
+                // 連続正解数をコンボとして表示
+                if (playerStreakCount >= 2) {
+                    actionLog = `⭕正解！ 【${playerStreakCount}連コンボ！】 ${player.name} の攻撃！ ${enemy.name} に ${damage} のダメージ！`;
+                } else {
+                    actionLog = `⭕正解！ ${player.name} の攻撃！ ${enemy.name} に ${damage} のダメージ！`;
+                }
 
-                // 夏目漱石：25%でHP30回復
                 if (player.name === "夏目漱石" && Math.random() < 0.25) {
                     player.hp = Math.min(player.maxHp, player.hp + 30);
                     abilityLog += "【能力発動】『月が綺麗ですね』。心が癒やされHPが30回復！<br>";
                 }
 
-                // 鴨長明：3回正解で相手のATK半減
-                if (player.name === "鴨長明" && playerCorrectCount === 3 && !isChomeiTriggered) {
+                // 鴨長明：5問連続正解で相手のATK半減（名称：無常観）
+                if (player.name === "鴨長明" && playerStreakCount === 5 && !isChomeiTriggered) {
                     enemy.atk = Math.floor(enemy.atk / 2);
                     isChomeiTriggered = true;
-                    abilityLog += "【能力発動】『無常観の押し付け』！世の儚さを説き、敵のATKを永続で半減させた！<br>";
+                    abilityLog += "【能力発動】『無常観』！驚異の5連正解！世の無常を見せつけ敵のATKを永久半減！<br>";
                 }
 
                 log.style.color = "#00ffcc";
 
             } else {
                 // --- 【不正解時】敵の反撃 ---
+                playerStreakCount = 0; // 不正解で連勝ストリークはリセット！
                 let enemyDamage = enemy.atk;
                 let isEvaded = false;
 
                 // 森鴎外：20%で完全回避
                 if (player.name === "森鴎外" && Math.random() < 0.20) {
                     isEvaded = true;
-                    abilityLog += "【能力発動】『冷徹な軍医』！敵の攻撃を完全に見切って回避！<br>";
+                    abilityLog += "【能力発動】『舞姫』！敵の攻撃を華麗に回避！<br>";
                 }
 
                 if (isEvaded) {
                     actionLog = `❌不正解… 正解は ${currentQuizAnswer}。しかし、敵の攻撃を回避した！`;
                 } else {
-                    // 宮沢賢治：常に5ダメージ軽減
                     if (player.name === "宮沢賢治") {
                         enemyDamage = Math.max(1, enemyDamage - 5);
                         abilityLog += "【能力発動】『雨ニモマケズ』！受けるダメージを5軽減！<br>";
                     }
 
-                    // 重松清：シールド処理
                     if (playerShield > 0) {
                         if (playerShield >= enemyDamage) {
                             playerShield -= enemyDamage;
@@ -421,11 +509,10 @@
                         actionLog = `❌不正解… 正解は ${currentQuizAnswer}。敵の反撃！ ${player.name} は ${enemyDamage} のダメージ！`;
                     }
 
-                    // 芥川龍之介：15ドレイン
                     if (player.name === "芥川龍之介") {
-                        enemy.hp -= 15;
-                        player.hp = Math.min(player.maxHp, player.hp + 15);
-                        abilityLog += "【能力発動】『蜘蛛の糸』！地獄の底から敵の命を15吸い取った！<br>";
+                        enemy.hp -= 10;
+                        player.hp = Math.min(player.maxHp, player.hp + 10);
+                        abilityLog += "【能力発動】『蜘蛛の糸』！地獄の底から敵の命を10吸い取った！<br>";
                     }
                 }
 
@@ -433,13 +520,11 @@
             }
 
             // --- ターン終了時処理 ---
-            // 鷺沢萠：毎ターン終了時10固定ダメージ
             if (!isGameover && player.name === "鷺沢萠" && enemy.hp > 0 && player.hp > 0) {
                 enemy.hp -= 10;
                 abilityLog += "【能力発動】『駆ける少年の衝動』！ターン終了時に敵のHPを10削る！<br>";
             }
 
-            // ログの合体表示
             log.innerHTML = (abilityLog !== "" ? abilityLog : "") + actionLog;
 
             updateDisplay();
@@ -462,7 +547,7 @@
             } else {
                 const buttons = document.querySelectorAll('.btn');
                 buttons.forEach(b => b.disabled = true);
-                setTimeout(nextTurn, 2500); // 演出をじっくり見せるため2.5秒に調整
+                setTimeout(nextTurn, 2500);
             }
         }
 
@@ -474,16 +559,15 @@
             resetBtn.style.gridColumn = "span 2";
             resetBtn.style.backgroundColor = "#dab358";
             resetBtn.style.color = "black";
-            resetBtn.innerText = "キャラ選択に戻る";
+            resetBtn.innerText = "タイトル（ルール）に戻る";
             resetBtn.onclick = function() {
                 document.getElementById('battle-screen').style.display = "none";
-                document.getElementById('character-select').style.display = "block";
-                createSelectScreen();
+                document.getElementById('rules-screen').style.display = "block";
             };
             container.appendChild(resetBtn);
         }
 
-        createSelectScreen();
+        // 起動時はルール画面を表示させるため、何もしない（HTML側で最初から見える設定になっています）
     </script>
 </body>
 </html>
