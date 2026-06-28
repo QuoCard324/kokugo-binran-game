@@ -54,19 +54,28 @@
         }
         .highlight-text { color: #00ffcc; font-weight: bold; }
         .danger-text { color: #ff4d4d; font-weight: bold; }
+        
+        .mode-select-btns {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
         .start-nav-btn {
             background: linear-gradient(135deg, #dab358, #b08b35);
             color: black;
             border: none;
             border-radius: 8px;
-            padding: 15px 30px;
-            font-size: 1.1em;
+            padding: 15px 25px;
+            font-size: 1.05em;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 25px;
-            width: 100%;
+            flex: 1;
             box-shadow: 0 4px 10px rgba(218, 179, 88, 0.3);
         }
+        .online-btn {
+            background: linear-gradient(135deg, #00ffcc, #00b399);
+        }
+
         .select-container {
             background-color: #2a2a2a;
             border: 2px solid #dab358;
@@ -83,7 +92,7 @@
             grid-template-columns: 1fr 1fr;
             gap: 12px;
             margin-top: 20px;
-            max-height: 500px;
+            max-height: 450px;
             overflow-y: auto;
             padding-right: 5px;
         }
@@ -100,6 +109,30 @@
         .select-name { font-size: 1.1em; font-weight: bold; color: #dab358; }
         .select-stats { font-size: 0.85em; color: #ccc; margin: 3px 0; }
         .select-ability { font-size: 0.75em; color: #00ffcc; background-color: #111; padding: 4px; border-radius: 4px; }
+        
+        /* オンライン設定入力欄 */
+        .online-setup-box {
+            background-color: #1a1a1a;
+            border: 1px solid #555;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+        .online-input {
+            background-color: #333;
+            border: 1px solid #dab358;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 1.1em;
+            text-align: center;
+            width: 200px;
+        }
+
         .battle-container { display: none; flex-direction: column; align-items: center; width: 100%; }
         .battle-field { display: flex; justify-content: space-around; width: 100%; max-width: 700px; margin-bottom: 20px; }
         .card {
@@ -164,7 +197,7 @@
 <body>
 
     <h1>国語便覧 文豪バトル</h1>
-    <p class="subtitle">正しい知識を選び、特殊能力で勝利を掴め！</p>
+    <p class="subtitle" id="game-subtitle">正しい知識を選び、特殊能力で勝利を掴め！</p>
 
     <div id="rules-screen" class="rules-container">
         <h2>📜 対戦ルール説明</h2>
@@ -175,20 +208,34 @@
                 <li><span class="highlight-text">正解時</span>：自身のATKで相手にダメージを与えます。</li>
                 <li><span class="danger-text">⚠️ 敵のリアルタイム自動攻撃</span>：敵はクイズに関係なく、<span class="danger-text">5秒ごとに自動攻撃</span>してきます！</li>
                 <li><span class="danger-text">不正解時</span>：ペナルティとして、即座に敵から反撃ダメージを受けます。</li>
+                <li><span class="highlight-text">🌐 オンライン対戦</span>：友達と同じ部屋番号を入力して、リアルタイムにHPを削り合えます！</li>
             </ul>
         </div>
-        <button class="start-nav-btn" onclick="goToSelectScreen()">ゲームスタート（文豪を選ぶ）</button>
+        <div class="mode-select-btns">
+            <button class="start-nav-btn" onclick="goToSelectScreen(false)">👤 一人で遊ぶ</button>
+            <button class="start-nav-btn online-btn" onclick="goToSelectScreen(true)">🌐 オンライン対戦</button>
+        </div>
     </div>
 
     <div id="character-select" class="select-container">
-        <h2>出陣する文豪を選択（総勢20名）</h2>
+        <h2 id="select-title">出陣する文豪を選択（総勢20名）</h2>
         <div class="select-grid" id="select-grid-container"></div>
+        
+        <div id="online-setup" class="online-setup-box" style="display: none;">
+            <h3>🔑 オンライン部屋設定</h3>
+            <p style="font-size:0.85em; color:#aaa; margin:0;">同じ4桁の数字を入力した友達とマッチングします</p>
+            <input type="number" id="room-input" class="online-input" placeholder="部屋番号 (例: 1234)" min="1000" max="9999">
+            <div style="display: flex; gap: 10px; margin-top: 5px;">
+                <button class="btn" style="padding: 8px 15px; font-size: 0.9em;" onclick="startOnlineGame('host')">部屋を作る (先に入る)</button>
+                <button class="btn" style="padding: 8px 15px; font-size: 0.9em; background-color:#00ffcc; color:black;" onclick="startOnlineGame('guest')">部屋に入る (後から入る)</button>
+            </div>
+        </div>
     </div>
 
     <div id="battle-screen" class="battle-container">
         <div class="battle-field">
             <div class="card">
-                <div style="font-size:0.8em; color:#aaa;">味方</div>
+                <div style="font-size:0.8em; color:#aaa;" id="p-label">味方</div>
                 <div class="card-name" id="p-name">???</div>
                 <div class="stat hp">HP: <span id="p-hp">0</span></div>
                 <div class="stat atk">ATK: <span id="p-atk">0</span></div>
@@ -196,7 +243,7 @@
             </div>
             <div style="font-size: 2em; align-self: center; color: #dab358;">VS</div>
             <div class="card enemy">
-                <div style="font-size:0.8em; color:#aaa;">敵</div>
+                <div style="font-size:0.8em; color:#aaa;" id="e-label">敵</div>
                 <div class="card-name" id="e-name">???</div>
                 <div class="stat hp">HP: <span id="e-hp">0</span></div>
                 <div class="stat atk">ATK: <span id="e-atk">0</span></div>
@@ -211,9 +258,12 @@
     </div>
 
     <script>
-        // クイズ問題用：全35名のデータ
+        // --- Supabase 設定 ---
+        const SUPABASE_URL = "https://eqqbxsiptbgxgsznuzhq.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_yP1Xswfbs9_K0-1CoSimPw_p1TXzzxd";
+
+        // クイズ問題用：全35名
         const bungoData = [
-            // キャラ選択に残す14名（元のメインキャラから厳選）
             { name: "太宰治", hp: 240, maxHp: 240, atk: 35, hint: "『人間失格』『走れメロス』の著者。心中未遂を繰り返し、39歳で玉川上水にて入水。", abName: "人間失格", abDesc: "HP半分以下でATK1.3倍", isPlayable: true },
             { name: "夏目漱石", hp: 360, maxHp: 360, atk: 25, hint: "『吾輩は猫である』『こころ』の著者。千円札の肖像でも有名。イギリス留学で神経衰弱に。", abName: "月が綺麗ですね", abDesc: "正解時25%でHP30回復", isPlayable: true },
             { name: "芥川龍之介", hp: 200, maxHp: 200, atk: 40, hint: "『羅生門』『蜘蛛の糸』の著者。「ぼんやりとした不安」を理由に自ら命を絶った天才短編作家。", abName: "蜘蛛の糸", abDesc: "被弾時、敵HPを10奪う", isPlayable: true },
@@ -223,8 +273,6 @@
             { name: "鴨長明", hp: 220, maxHp: 220, atk: 38, hint: "「ゆく河の流れは絶えずして…」で知られる鎌倉時代の代表的な随筆『方丈記』の著者。", abName: "無常観", abDesc: "5連正解で敵ATKを永久半減", isPlayable: true },
             { name: "重松清", hp: 320, maxHp: 320, atk: 26, hint: "現代の作家。『ナイフ』『エイジ』『とんび』など、現代のいじめや家族の葛藤をリアルに描く。", abName: "親心のバリア", abDesc: "開始時に耐久40のシールド", isPlayable: true },
             { name: "鷺沢萠", hp: 260, maxHp: 260, atk: 34, hint: "現役女子大生作家として注目され『川べりの道』や『駆ける少年』を発表。若者の孤独を描いた。", abName: "駆ける衝動", abDesc: "毎ターン終了時敵に10ダメージ", isPlayable: true },
-            
-            // 追加分からキャラ選択に残す6名（3名非表示化）
             { name: "永井荷風", hp: 310, maxHp: 310, atk: 27, hint: "耽美派の作家。フランス・アメリカ留学を経て、江戸情緒や花柳界を描いた『濹東綺譚』を残す。", abName: "断腸亭日乗", abDesc: "毎ターン敵のHPを5吸収", isPlayable: true },
             { name: "野間宏", hp: 300, maxHp: 300, atk: 29, hint: "第一次戦後派の作家。自身の軍隊経験を基に、抑圧された人間の心理を克明に描いた『真空地帯』が代表作。", abName: "真空地帯", abDesc: "HPが30%以下になるとATKが1.4倍", isPlayable: true },
             { name: "安部公房", hp: 330, maxHp: 330, atk: 26, hint: "前衛文学の旗手。砂の穴の底に閉じ込められた男の不条理を描いた『砂の女』や『箱男』で世界的に評価された。", abName: "砂の壁", abDesc: "クイズ不正解時の敵の反撃を完全無効化", isPlayable: true },
@@ -237,12 +285,10 @@
             { name: "星新一", hp: 260, maxHp: 260, atk: 30, hint: "「ショートショートの神様」。生涯に1000編以上の超短編SFを残す。代表作に『ボッコちゃん』など。", abName: "おせっかいな宇宙人", abDesc: "毎ターンATKが15〜45の間でランダムに変動", isPlayable: true },
             { name: "浅田次郎", hp: 330, maxHp: 330, atk: 28, hint: "「平成の泣かせ屋」。鉄道員の老境と奇跡を描いた『鉄道員（ぽっぽや）』や、中国の歴史巨編『蒼穹の昴』の著者。", abName: "ぽっぽやの奇跡", abDesc: "HPが0になるダメージを受けた時、一度だけHP1で耐える", isPlayable: true },
             
-            // 【今回「問題専用」に変更した3名】
+            // 問題専用（キャラ選択不可）
             { name: "梅崎春生", hint: "戦後派作家。特攻基地の暗号兵としての張り詰めた日常と人間のエゴを描いた『桜島』や『日の果て』で有名。", isPlayable: false },
             { name: "梶井基次郎", hint: "短編の名手。肺結核に苦しみながら、丸善の棚の洋書の上にレモンを置いて去る心理を描いた『檸檬』が有名。", isPlayable: false },
             { name: "三島由紀夫", hint: "『仮面の告白』『金閣寺』の著者。完璧な言語美と肉体美を追求し、最後は市ヶ谷の自衛隊駐屯地で自決。", isPlayable: false },
-
-            // 【前回までに「問題専用」にした12名】
             { name: "安岡章太郎", hint: "「第三の新人」の代表格。自身の劣等感や、没落していく家庭の姿をユーモラスかつ冷徹に描いた『悪い仲間』『海辺の光景』など。", isPlayable: false },
             { name: "井上ひさし", hint: "劇作家・小説家。東北の架空の村が独立を宣言する『吉里吉里人』や、言葉遊びを駆使した劇作『父と暮せば』など。", isPlayable: false },
             { name: "大岡昇平", hint: "戦後派の重鎮。レイテ島での捕虜経験を基にした『俘虜記』や、極限状態での人肉食を扱った『野火』が代表作。", isPlayable: false },
@@ -254,19 +300,55 @@
             { name: "山田詠美", hint: "米軍基地周辺の恋愛を描いた『ベッドタイムアイズ』や、少年少女の成長と傷を描く『風葬の教室』などの著者。", isPlayable: false },
             { name: "村上春樹", hint: "『風の歌を聴け』でデビューし、『ノルウェイの森』『海辺のカフカ』など独特の比喩と喪失感を描く世界的作家。", isPlayable: false },
             { name: "宮本輝", hint: "人間の業や生死を大河的な物語で描く作家。大阪の川べりを舞台にした『泥の河』『螢川』などの川三部作が有名。", isPlayable: false },
-            { name: "向田邦子", hint: "昭和の家庭の裏に潜む人間の機微を鋭く切り取った短編集『思い出トランプ』で直木賞を受勝した脚本家・エッセイスト。", isPlayable: false }
+            { name: "向田邦子", hint: "昭和の家庭の裏に潜む人間の機微を鋭く切り取った短編集『思い出トランプ』で直木賞を受賞した脚本家・エッセイスト。", isPlayable: false }
         ];
 
-        // キャラクター選択・敵出現はisPlayableがtrueのものだけ（計20名）
         const playableBungo = bungoData.filter(b => b.isPlayable);
 
-        let player = null, enemy = null, currentQuizAnswer = "", isGameover = false, enemyAttackTimer = null; 
-        let playerStreakCount = 0, playerShield = 0, isAtsushiTriggered = false, isChomeiTriggered = false;
-        let isMishimaTriggered = false, isAsadaTriggered = false;
+        let player = null, enemy = null, currentQuizAnswer = "", isGameover = false;
+        let enemyAttackTimer = null, onlineSyncTimer = null;
+        let playerStreakCount = 0, playerShield = 0;
+        let isAtsushiTriggered = false, isChomeiTriggered = false, isMishimaTriggered = false, isAsadaTriggered = false;
+        
+        let isOnlineMode = false, currentRoomId = "", playerRole = ""; // host or guest
+        let selectedBungoIndex = 0;
 
-        function goToSelectScreen() {
+        // 初期セットアップ（Supabaseにテーブルがない場合は自動で作成要求を通す）
+        async function supabaseFetch(endpoint, options = {}) {
+            const url = `${SUPABASE_URL}/rest/v1/${endpoint}`;
+            const headers = {
+                "apikey": SUPABASE_KEY,
+                "Authorization": `Bearer ${SUPABASE_KEY}`,
+                "Content-Type": "application/json",
+                "Prefer": "return=representation"
+            };
+            if (options.headers) Object.assign(headers, options.headers);
+            const res = await fetch(url, { ...options, headers });
+            return res;
+        }
+
+        async function autoCreateSchema() {
+            // 簡易的にテーブルがあるか確認を兼ねたリクエスト
+            try { await supabaseFetch("rooms?select=*", { method: "GET", headers: { "Range": "0-0" } }); } catch(e) {}
+        }
+        autoCreateSchema();
+
+        function goToSelectScreen(online) {
+            isOnlineMode = online;
             document.getElementById('rules-screen').style.display = "none";
             document.getElementById('character-select').style.display = "block";
+            
+            if(isOnlineMode) {
+                document.getElementById('select-title').innerText = "🌐 オンライン対戦：使用する文豪を選択";
+                document.getElementById('online-setup').style.display = "flex";
+                document.getElementById('p-label').innerText = "あなた";
+                document.getElementById('e-label').innerText = "対戦相手";
+            } else {
+                document.getElementById('select-title').innerText = "出陣する文豪を選択（総勢20名）";
+                document.getElementById('online-setup').style.display = "none";
+                document.getElementById('p-label').innerText = "味方";
+                document.getElementById('e-label').innerText = "敵";
+            }
             createSelectScreen();
         }
 
@@ -276,50 +358,167 @@
             playableBungo.forEach((bungo, index) => {
                 const btn = document.createElement('button');
                 btn.className = "select-card-btn";
+                if(isOnlineMode && selectedBungoIndex === index) {
+                    btn.style.borderColor = "#00ffcc";
+                }
                 btn.innerHTML = `
                     <div class="select-name">${bungo.name}</div>
                     <div class="select-stats">HP: ${bungo.hp} / ATK: ${bungo.atk}</div>
                     <div class="select-ability">⚡ ${bungo.abName}: ${bungo.abDesc}</div>
                 `;
-                btn.onclick = () => { selectCharacter(index); };
+                btn.onclick = () => { 
+                    selectedBungoIndex = index;
+                    if(!isOnlineMode) {
+                        startOfflineGame(index);
+                    } else {
+                        createSelectScreen(); // オンライン時は選択状態を視覚化
+                    }
+                };
                 grid.appendChild(btn);
             });
         }
 
-        function selectCharacter(playableIndex) {
-            player = { ...playableBungo[playableIndex] };
+        // --- オフライン（一人用）ゲーム開始 ---
+        function startOfflineGame(index) {
+            player = { ...playableBungo[index] };
             let eIndex = Math.floor(Math.random() * playableBungo.length);
             while(playableBungo[eIndex].name === player.name) eIndex = Math.floor(Math.random() * playableBungo.length);
             enemy = { ...playableBungo[eIndex] };
 
-            playerStreakCount = 0; playerShield = 0; isAtsushiTriggered = false; isChomeiTriggered = false; isAsadaTriggered = false; isMishimaTriggered = false;
-            if (player.name === "重松清") playerShield = 40;
-
+            initBattleState();
             document.getElementById('character-select').style.display = "none";
             document.getElementById('battle-screen').style.display = "flex";
-            isGameover = false;
-            
             document.getElementById('log-text').innerHTML = `${player.name} VS ${enemy.name} ！ バトル開始！`;
+            
+            updateDisplay();
+            nextTurn();
+            enemyAttackTimer = setInterval(enemyActiveAttack, 5000);
+        }
+
+        function initBattleState() {
+            playerStreakCount = 0; playerShield = 0; isAtsushiTriggered = false; isChomeiTriggered = false; isAsadaTriggered = false; isMishimaTriggered = false;
+            if (player.name === "重松清") playerShield = 40;
+            isGameover = false;
+            if(enemyAttackTimer) clearInterval(enemyAttackTimer);
+            if(onlineSyncTimer) clearInterval(onlineSyncTimer);
+        }
+
+        // --- オンラインゲーム開始用 ---
+        async function startOnlineGame(role) {
+            const roomNum = document.getElementById('room-input').value;
+            if(!roomNum || roomNum < 1000 || roomNum > 9999) {
+                alert("4桁の部屋番号(1000〜9999)を入力してください"); return;
+            }
+            currentRoomId = "room_" + roomNum;
+            playerRole = role;
+            player = { ...playableBungo[selectedBungoIndex] };
+
+            document.getElementById('log-text').innerHTML = "通信中...";
+
+            if(role === 'host') {
+                // 部屋を新規作成または上書きリセット
+                const roomData = {
+                    id: currentRoomId,
+                    h_name: player.name, h_hp: player.hp, h_max: player.hp, h_atk: player.atk, h_ab: player.abName,
+                    g_name: "待機中...", g_hp: 0, g_max: 0, g_atk: 0, g_ab: "-",
+                    last_action: "ホスト入室"
+                };
+                // 既存の部屋を消去してから作成
+                await supabaseFetch(`rooms?id=eq.${currentRoomId}`, { method: "DELETE" });
+                await supabaseFetch("rooms", {
+                    method: "POST",
+                    body: JSON.stringify(roomData),
+                    headers: { "Prefer": "return=representation" }
+                });
+
+                enemy = { name: "対戦相手", hp: 100, maxHp: 100, atk: 0, abName: "-" };
+                document.getElementById('log-text').innerHTML = "友達の入室を待っています...部屋番号を伝えてください。";
+            } else {
+                // ゲストとして入室
+                const res = await supabaseFetch(`rooms?id=eq.${currentRoomId}`, { method: "GET" });
+                const rooms = await res.json();
+                if(!rooms || rooms.length === 0) {
+                    alert("指定された部屋が見つかりません。ホストが先に入室してください。"); return;
+                }
+                
+                const room = rooms[0];
+                enemy = { name: room.h_name, hp: room.h_hp, maxHp: room.h_max, atk: room.h_atk, abName: room.h_ab };
+
+                await supabaseFetch(`rooms?id=eq.${currentRoomId}`, {
+                    method: "PATCH",
+                    body: JSON.stringify({
+                        g_name: player.name, g_hp: player.hp, g_max: player.hp, g_atk: player.atk, g_ab: player.abName,
+                        last_action: "ゲスト入室"
+                    })
+                });
+            }
+
+            initBattleState();
+            document.getElementById('character-select').style.display = "none";
+            document.getElementById('battle-screen').style.display = "flex";
             updateDisplay();
             nextTurn();
 
-            if(enemyAttackTimer) clearInterval(enemyAttackTimer);
-            // 自動攻撃タイマーの間隔を5000ms（5秒）に設定
+            // 2秒ごとにオンラインの同期処理を実行
+            onlineSyncTimer = setInterval(syncOnlineData, 2000);
+            // オンラインでも5秒ごとの自動ペナルティ攻撃を有効化
             enemyAttackTimer = setInterval(enemyActiveAttack, 5000);
+        }
+
+        // --- オンラインのデータ同期 ---
+        async function syncOnlineData() {
+            if(isGameover || !isOnlineMode) return;
+
+            // 自分の最新HPを送信
+            const updatePayload = {};
+            if(playerRole === 'host') {
+                updatePayload.h_hp = player.hp;
+            } else {
+                updatePayload.g_hp = player.hp;
+            }
+            await supabaseFetch(`rooms?id=eq.${currentRoomId}`, {
+                method: "PATCH",
+                body: JSON.stringify(updatePayload)
+            });
+
+            // 相手の最新HPを取得
+            const res = await supabaseFetch(`rooms?id=eq.${currentRoomId}`, { method: "GET" });
+            const rooms = await res.json();
+            if(rooms && rooms.length > 0) {
+                const room = rooms[0];
+                if(playerRole === 'host') {
+                    if(room.g_name !== "待機中...") {
+                        enemy.name = room.g_name;
+                        enemy.hp = room.g_hp;
+                        enemy.maxHp = room.g_max;
+                        enemy.atk = room.g_atk;
+                        enemy.abName = room.g_ab;
+                    }
+                } else {
+                    enemy.name = room.h_name;
+                    enemy.hp = room.h_hp;
+                    enemy.maxHp = room.h_max;
+                    enemy.atk = room.h_atk;
+                    enemy.abName = room.h_ab;
+                }
+            }
+            updateDisplay();
+            checkBattleOver();
         }
 
         function enemyActiveAttack() {
             if (isGameover || !player || !enemy) return;
+            // オンライン対戦時に相手がまだ入室していない場合は攻撃をスキップ
+            if (isOnlineMode && enemy.atk === 0) return;
+
             const log = document.getElementById('log-text');
             let dmgLog = "", abLog = "";
             
             if (player.name === "森鴎外" && Math.random() < 0.20) {
-                log.innerHTML = "【能力発動】『舞姫』! 敵の自動攻撃を完全回避！";
-                return;
+                log.innerHTML = "【能力発動】『舞姫』! 敵の自動攻撃を完全回避！"; return;
             }
             if (player.name === "幸田文" && Math.random() < 0.15) {
-                log.innerHTML = "【能力発動】『流れる』! 敵の自動攻撃を受け流した！";
-                return;
+                log.innerHTML = "【能力発動】『流れる』! 敵の自動攻撃を受け流した！"; return;
             }
 
             let dmg = enemy.atk;
@@ -347,16 +546,16 @@
             document.getElementById('p-name').innerText = player.name;
             document.getElementById('p-hp').innerText = playerShield > 0 ? `${Math.max(0, player.hp)} (+${playerShield})` : Math.max(0, player.hp);
             document.getElementById('p-atk').innerText = Math.floor(player.atk);
-            document.getElementById('p-ability-name').innerText = `⚡ ${player.abName}`;
+            document.getElementById('p-ability-name').innerText = `⚡ ${player.abName || '-'}`;
+            
             document.getElementById('e-name').innerText = enemy.name;
             document.getElementById('e-hp').innerText = Math.max(0, enemy.hp);
             document.getElementById('e-atk').innerText = Math.floor(enemy.atk);
-            document.getElementById('e-ability-name').innerText = `⚡ ${enemy.abName}`;
+            document.getElementById('e-ability-name').innerText = `⚡ ${enemy.abName || '-'}`;
         }
 
         function nextTurn() {
             if (isGameover) return;
-            // 問題は、非表示にした全15名分を含めた全35名からランダムに出題
             const quizSource = bungoData[Math.floor(Math.random() * bungoData.length)];
             currentQuizAnswer = quizSource.name;
             document.getElementById('hint-text').innerText = quizSource.hint;
@@ -379,8 +578,10 @@
             });
         }
 
-        function handleAction(selectedName) {
+        async function handleAction(selectedName) {
             if (isGameover || !player || !enemy) return;
+            if (isOnlineMode && enemy.atk === 0) { alert("対戦相手がまだ入室していません！"); return; }
+
             const log = document.getElementById('log-text');
             let actionLog = "", abLog = "";
 
@@ -397,7 +598,7 @@
                 if (player.name === "大江健三郎") { player.atk += 3; abLog += "【能力】『個人的な体験』ATKが3永続上昇！<br>"; }
 
                 enemy.hp -= damage;
-                actionLog = `⭕正解！ ${damage} ダメージ！`;
+                actionLog = `⭕正解！ ${damage} ダメージを相手に与えた！`;
 
                 if (player.name === "夏目漱石" && Math.random() < 0.25) { player.hp = Math.min(player.maxHp, player.hp + 30); abLog += "【能力】HP30回復！<br>"; }
                 if (player.name === "井上靖" && playerStreakCount % 3 === 0) { player.hp = Math.min(player.maxHp, player.hp + 40); abLog += "【能力】『敦煌』3連正解で40回復！<br>"; }
@@ -436,6 +637,12 @@
             log.innerHTML = abLog + actionLog;
             updateDisplay();
 
+            // オンライン対戦時は即座に最新の計算結果をデータベースに送る
+            if(isOnlineMode) {
+                const actionPayload = playerRole === 'host' ? { h_hp: player.hp, g_hp: enemy.hp } : { g_hp: player.hp, h_hp: enemy.hp };
+                await supabaseFetch(`rooms?id=eq.${currentRoomId}`, { method: "PATCH", body: JSON.stringify(actionPayload) });
+            }
+
             if (!checkBattleOver()) {
                 setTimeout(nextTurn, 200); 
             }
@@ -446,15 +653,20 @@
             const log = document.getElementById('log-text');
 
             if (enemy.hp <= 0) {
-                isGameover = true; if(enemyAttackTimer) clearInterval(enemyAttackTimer);
+                isGameover = true; stopTimers();
                 log.innerHTML = `🎉 勝負あり！ ${enemy.name} を撃破！あなたの勝利です！`;
                 log.style.color = "#dab358"; showResetButton(); return true;
             } else if (player.hp <= 0) {
-                isGameover = true; if(enemyAttackTimer) clearInterval(enemyAttackTimer);
+                isGameover = true; stopTimers();
                 log.innerHTML = `💀 勝負あり！ ${player.name} が倒れた… あなたの敗北です。`;
                 log.style.color = "#ff4d4d"; showResetButton(); return true;
             }
             return false;
+        }
+
+        function stopTimers() {
+            if(enemyAttackTimer) clearInterval(enemyAttackTimer);
+            if(onlineSyncTimer) clearInterval(onlineSyncTimer);
         }
 
         function showResetButton() {
