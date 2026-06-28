@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>国語便覧 文豪バトル（称号・セーブ対応版）</title>
+    <title>国語便覧 文豪バトル（名前・称号保存版）</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -66,31 +66,58 @@
         }
         .game-main-content { display: none; flex-direction: column; align-items: center; width: 100%; position: relative; }
         
-        /* ユーザー情報＆右上称号の配置レイアウト */
+        /* 👑 左上に「称号 / 名前」を表示するステータスバー */
         .user-status-bar {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
             width: 100%;
             max-width: 950px;
             margin-bottom: 15px;
         }
         .user-badge {
-            font-size: 0.85em;
-            color: #00ffcc;
-            background-color: #222;
-            padding: 6px 12px;
-            border-radius: 20px;
-        }
-        .title-badge {
-            font-size: 0.85em;
+            font-size: 0.9em;
             color: #fff;
-            background: linear-gradient(135deg, #b08b35, #dab358);
-            color: black;
-            font-weight: bold;
-            padding: 6px 14px;
+            background: linear-gradient(135deg, #2a2a2a, #151515);
+            border: 1px solid #dab358;
+            padding: 8px 16px;
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        /* 📝 名前変更入力欄のスタイル */
+        .name-setting-box {
+            background-color: #222;
+            border: 1px solid #444;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 400px;
+            box-sizing: border-box;
+        }
+        .name-input {
+            background-color: #333;
+            border: 1px solid #555;
+            color: white;
+            padding: 6px 10px;
             border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            font-size: 0.9em;
+            flex: 1;
+        }
+        .name-save-btn {
+            background-color: #dab358;
+            color: black;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.85em;
         }
 
         .rules-container {
@@ -163,7 +190,7 @@
             grid-template-columns: 1fr 1fr 1fr;
             gap: 12px;
             margin-top: 20px;
-            max-height: 500px;
+            max-height: 450px;
             overflow-y: auto;
             padding-right: 5px;
         }
@@ -284,12 +311,11 @@
 
     <div id="game-main-content" class="game-main-content">
         <div class="user-status-bar">
-            <div class="user-badge" id="login-user-badge">ログイン中</div>
-            <div class="title-badge" id="user-title-display">称号: なし</div>
+            <div class="user-badge" id="user-status-display">🎖️ なし / ゲスト文豪</div>
         </div>
 
         <div id="rules-screen" class="rules-container">
-            <h2>📜 对戦ルール説明</h2>
+            <h2>📜 対戦ルール説明</h2>
             <p>出題される作品や解説を読み、正しい文豪の名前を4択から選んでください。</p>
             <p>文豪ごとに超強力な特殊パッシブスキルが自動で発動します！オンラインでリアルタイムに噛み合うバトルの面白さをご体感ください。</p>
             <div class="mode-select-btns">
@@ -325,7 +351,15 @@
         </div>
 
         <div id="character-select" class="select-container">
-            <h2 id="select-title">出陣する文豪を選択（厳選22名）</h2>
+            <div style="display: flex; justify-content: center; width: 100%;">
+                <div class="name-setting-box">
+                    <span style="font-size:0.85em; color:#aaa;">名前変更:</span>
+                    <input type="text" id="player-name-input" class="name-input" placeholder="新しい名前を入力">
+                    <button class="name-save-btn" onclick="savePlayerName()">保存</button>
+                </div>
+            </div>
+
+            <h2 id="select-title" style="margin-top: 5px;">出陣する文豪を選択（厳選22名）</h2>
             <div class="select-grid" id="select-grid-container"></div>
             
             <div id="online-setup" class="online-setup-box" style="display: none;">
@@ -373,13 +407,13 @@
         let loginUserToken = "";
         let loginUserId = "";
 
-        // 🏆 ユーザーセーブデータ（後からいくらでも拡張可能です）
+        // 🏆 セーブデータ項目に player_name を追加
         let userProfile = {
             highest_level: 0,
-            current_title: "なし"
+            current_title: "なし",
+            player_name: "ゲスト文豪"
         };
 
-        // 🌟 レベルクリア報酬の称号定義（後から追加・変更が超簡単です！）
         const titleRewards = {
             1: "初学者です",
             2: "文学楽しい",
@@ -414,9 +448,7 @@
                     loginUserId = data.user.id;
                     document.getElementById('auth-screen').style.display = "none";
                     document.getElementById('game-main-content').style.display = "flex";
-                    document.getElementById('login-user-badge').innerText = `👤 ${data.user.email}`;
                     
-                    // 💾 ログイン成功時にクラウドからセーブデータをロード
                     await loadUserProfile();
                 }
             } catch(e) { msgElm.innerText = "エラーが発生しました"; }
@@ -437,7 +469,6 @@
             return fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, { ...options, headers: { ...headers, ...options.headers } });
         }
 
-        // 💾 クラウドからデータを読み込む処理
         async function loadUserProfile() {
             try {
                 const res = await supabaseFetch(`profiles?id=eq.${loginUserId}`, { method: "GET" });
@@ -446,24 +477,23 @@
                 if (data && data.length > 0) {
                     userProfile.highest_level = data[0].highest_level || 0;
                     userProfile.current_title = data[0].current_title || "なし";
+                    userProfile.player_name = data[0].player_name || "ゲスト文豪";
                 } else {
-                    // まだデータがない新規ユーザーの場合は初期作成
                     await supabaseFetch("profiles", {
                         method: "POST",
-                        body: JSON.stringify({ id: loginUserId, highest_level: 0, current_title: "なし" })
+                        body: JSON.stringify({ id: loginUserId, highest_level: 0, current_title: "なし", player_name: "ゲスト文豪" })
                     });
                 }
-                updateTitleDisplay();
+                document.getElementById('player-name-input').value = userProfile.player_name;
+                updateStatusDisplay();
             } catch (e) {
                 console.error("セーブデータの読み込みに失敗しました", e);
             }
         }
 
-        // 💾 クラウドへデータを保存・更新する処理
         async function saveUserProfile(newLevel) {
             if (!loginUserId) return;
             
-            // 現在のクリアレベルより高い、かつ新しい称号がある場合のみ更新
             if (newLevel > userProfile.highest_level) {
                 userProfile.highest_level = newLevel;
                 if (titleRewards[newLevel]) {
@@ -478,22 +508,40 @@
                             current_title: userProfile.current_title 
                         })
                     });
-                    updateTitleDisplay();
+                    updateStatusDisplay();
                 } catch (e) {
                     console.error("データの保存に失敗しました", e);
                 }
             }
         }
 
-        function updateTitleDisplay() {
-            document.getElementById('user-title-display').innerText = `🎖️ 称号: ${userProfile.current_title}`;
+        // ✍️ 名前をSupabaseに単体保存する関数
+        async function savePlayerName() {
+            const inputName = document.getElementById('player-name-input').value.trim();
+            if(!inputName) { alert("名前を入力してください。"); return; }
+            
+            userProfile.player_name = inputName;
+            try {
+                await supabaseFetch(`profiles?id=eq.${loginUserId}`, {
+                    method: "PATCH",
+                    body: JSON.stringify({ player_name: userProfile.player_name })
+                });
+                updateStatusDisplay();
+                alert("名前を保存しました！");
+            } catch(e) {
+                console.error("名前の保存に失敗しました", e);
+            }
+        }
+
+        // 左上の「称号 / 名前」表示を更新
+        function updateStatusDisplay() {
+            document.getElementById('user-status-display').innerText = `🎖️ ${userProfile.current_title} / ${userProfile.player_name}`;
         }
 
         // 22名の文豪データ
         const bungoData = [
             { name: "太宰治", hp: 240, maxHp: 240, atk: 35, baseAtk: 35, abName: "人間失格", desc: "HPが半分以下になると攻撃力1.3倍" },
             { name: "夏目漱石", hp: 360, maxHp: 360, atk: 25, baseAtk: 25, abName: "月が綺麗ですね", desc: "正解時25%の確率でHP30回復" },
-            // 💡 芥川龍之介の能力説明を修正
             { name: "芥川龍之介", hp: 200, maxHp: 200, atk: 40, baseAtk: 40, abName: "蜘蛛の糸", desc: "自分がクイズに正解した時、敵のHPを10奪って回復する" },
             { name: "中島敦", hp: 300, maxHp: 300, atk: 30, baseAtk: 30, abName: "月下獣", desc: "最初の正解時のみ与ダメージが2倍" },
             { name: "森鴎外", hp: 320, maxHp: 320, atk: 28, baseAtk: 28, abName: "舞姫", desc: "20%の確率で敵の攻撃を完全回避" },
@@ -571,7 +619,6 @@
         
         let syncLockUntil = 0;
 
-        // CPU難易度設定
         let selectedCpuLevel = 1;
         const cpuLevelSettings = {
             1: { hp: 250, atk: 30, interval: 7000, name: "CPU (Lv.1)" },
@@ -675,7 +722,7 @@
                 await supabaseFetch("rooms", {
                     method: "POST",
                     body: JSON.stringify({
-                        id: currentRoomId, h_name: player.name, h_ab: myStatusStr, g_name: "待機中...", g_ab: "0_0_-_0"
+                        id: currentRoomId, h_name: userProfile.player_name + `(${player.name})`, h_ab: myStatusStr, g_name: "待機中...", g_ab: "0_0_-_0"
                     })
                 });
             } else {
@@ -691,7 +738,7 @@
                 await supabaseFetch("rooms", {
                     method: "POST",
                     body: JSON.stringify({
-                        id: currentRoomId, h_name: room.h_name, h_ab: room.h_ab, g_name: player.name, g_ab: myStatusStr
+                        id: currentRoomId, h_name: room.h_name, h_ab: room.h_ab, g_name: userProfile.player_name + `(${player.name})`, g_ab: myStatusStr
                     }),
                     headers: { "Prefer": "resolution=merge-duplicates" }
                 });
@@ -893,7 +940,6 @@
                     logMsg += "【熱き輝ける闇】2倍ダメージ！ ";
                 }
 
-                // 💡 芥川龍之介のパッシブスキル修正（自分が正解して攻撃した時に10ドレイン）
                 if(player.abName === "蜘蛛の糸") {
                     let stealAmount = 10;
                     enemy.hp = Math.max(0, enemy.hp - stealAmount);
@@ -1009,7 +1055,6 @@
                 
                 let winMsg = `🎉 勝負あり！対戦相手の ${enemy.name} を撃破！あなたの勝利です！`;
                 
-                // 🤖 一人プレイ時に勝利した場合、クラウドに結果をセーブ（称号が更新されます）
                 if (!isOnlineMode) {
                     saveUserProfile(selectedCpuLevel);
                     if (titleRewards[selectedCpuLevel] && selectedCpuLevel > userProfile.highest_level) {
@@ -1036,7 +1081,6 @@
             rBtn.className = "btn"; rBtn.style.gridColumn = "span 2"; rBtn.style.backgroundColor = "#dab358"; rBtn.style.color = "black";
             rBtn.innerText = "タイトルに戻る";
             rBtn.onclick = () => {
-                // バトル終了時に一度リセットしてホームへ
                 document.getElementById('battle-screen').style.display = "none";
                 document.getElementById('rules-screen').style.display = "block";
             };
