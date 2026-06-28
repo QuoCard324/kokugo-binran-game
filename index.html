@@ -36,7 +36,6 @@
             width: 100%;
             text-align: center;
             box-shadow: 0 8px 16px rgba(0,0,0,0.5);
-            display: block; /* 確実に見せる */
         }
         .select-grid {
             display: grid;
@@ -71,7 +70,7 @@
 
         /* バトルフィールドのレイアウト */
         .battle-container {
-            display: none; /* 最初は非表示 */
+            display: none; 
             flex-direction: column;
             align-items: center;
             width: 100%;
@@ -83,7 +82,6 @@
             max-width: 700px;
             margin-bottom: 20px;
         }
-        /* カードのデザイン */
         .card {
             background: linear-gradient(135deg, #2c2c2c, #111);
             border: 3px solid #dab358;
@@ -195,7 +193,7 @@
 
         <div class="quiz-container">
             <div style="font-size: 0.9em; color: #aaa; margin-bottom: 5px; text-align: left;">【技の発動条件（お題）】</div>
-            <div class="hint-box" id="hint-text">バトル開始中...</div>
+            <div class="hint-box" id="hint-text"></div>
             
             <div class="options" id="options-container"></div>
             <div class="log" id="log-text"></div>
@@ -218,16 +216,136 @@
         let currentQuizAnswer = "";
         let isGameover = false;
 
-        // 起動時にキャラクター選択画面を作る
+        // キャラクター選択ボタンを絶対にエラーが起きない方法で生成
         function createSelectScreen() {
             const grid = document.getElementById('select-grid-container');
             grid.innerHTML = "";
             
-            for (let i = 0; i < bungoData.length; i++) {
-                const bungo = bungoData[i];
+            bungoData.forEach((bungo, index) => {
                 const btn = document.createElement('button');
                 btn.className = "select-card-btn";
                 
-                // innerHTMLのバグを回避するため、テキストを確実にセット
-                btn.innerHTML = '<div class="select-name">' + bungo.name + '</div>' +
-                                '<div class="select-stats">HP: ' + bungo.hp +
+                // エラーの原因だった結合を完全に無くし、テンプレートリテラルで安全に作成
+                btn.innerHTML = `
+                    <div class="select-name">${bungo.name}</div>
+                    <div class="select-stats">HP: ${bungo.hp} / ATK: ${bungo.atk}</div>
+                `;
+                
+                btn.onclick = () => { selectCharacter(index); };
+                grid.appendChild(btn);
+            });
+        }
+
+        function selectCharacter(selectedIndex) {
+            player = { ...bungoData[selectedIndex] };
+
+            let eIndex = Math.floor(Math.random() * bungoData.length);
+            while(eIndex === selectedIndex) {
+                eIndex = Math.floor(Math.random() * bungoData.length);
+            }
+            enemy = { ...bungoData[eIndex] };
+
+            document.getElementById('character-select').style.display = "none";
+            document.getElementById('battle-screen').style.display = "flex";
+
+            isGameover = false;
+            document.getElementById('log-text').innerText = `${player.name} を選択！ バトル開始！`;
+            document.getElementById('log-text').style.color = "#00ffcc";
+            
+            updateDisplay();
+            nextTurn();
+        }
+
+        function updateDisplay() {
+            document.getElementById('p-name').innerText = player.name;
+            document.getElementById('p-hp').innerText = Math.max(0, player.hp);
+            document.getElementById('p-atk').innerText = player.atk;
+
+            document.getElementById('e-name').innerText = enemy.name;
+            document.getElementById('e-hp').innerText = Math.max(0, enemy.hp);
+            document.getElementById('e-atk').innerText = enemy.atk;
+        }
+
+        function nextTurn() {
+            if (isGameover) return;
+
+            const quizSource = bungoData[Math.floor(Math.random() * bungoData.length)];
+            currentQuizAnswer = quizSource.name;
+            document.getElementById('hint-text').innerText = quizSource.hint;
+
+            let choices = [quizSource.name];
+            while (choices.length < 4) {
+                let randomName = bungoData[Math.floor(Math.random() * bungoData.length)].name;
+                if (!choices.includes(randomName)) {
+                    choices.push(randomName);
+                }
+            }
+            choices.sort(() => Math.random() - 0.5);
+
+            const container = document.getElementById('options-container');
+            container.innerHTML = "";
+            choices.forEach(name => {
+                const btn = document.createElement('button');
+                btn.className = "btn";
+                btn.innerText = name;
+                btn.onclick = () => handleAction(name);
+                container.appendChild(btn);
+            });
+        }
+
+        function handleAction(selectedName) {
+            if (isGameover) return;
+
+            const log = document.getElementById('log-text');
+            
+            if (selectedName === currentQuizAnswer) {
+                enemy.hp -= player.atk;
+                log.innerText = `⭕正解！ ${player.name} の攻撃！ ${enemy.name} に ${player.atk} のダメージ！`;
+                log.style.color = "#00ffcc";
+            } else {
+                player.hp -= enemy.atk;
+                log.innerText = `❌不正解！ 正解は ${currentQuizAnswer}。 ${enemy.name} の反撃！ ${player.name} は ${enemy.atk} のダメージ！`;
+                log.style.color = "#ff4d4d";
+            }
+
+            updateDisplay();
+
+            if (enemy.hp <= 0) {
+                isGameover = true;
+                log.innerText = `🎉 勝負あり！ ${enemy.name} を撃破した！ あなたの勝利です！`;
+                log.style.color = "#dab358";
+                showResetButton();
+            } else if (player.hp <= 0) {
+                isGameover = true;
+                log.innerText = `💀 勝負あり！ ${player.name} が倒れた… あなたの敗北です。`;
+                log.style.color = "#ff4d4d";
+                showResetButton();
+            } else {
+                const buttons = document.querySelectorAll('.btn');
+                buttons.forEach(b => b.disabled = true);
+                setTimeout(nextTurn, 2000);
+            }
+        }
+
+        function showResetButton() {
+            const container = document.getElementById('options-container');
+            container.innerHTML = "";
+            const resetBtn = document.createElement('button');
+            resetBtn.className = "btn";
+            resetBtn.style.gridColumn = "span 2";
+            resetBtn.style.backgroundColor = "#dab358";
+            resetBtn.style.color = "black";
+            resetBtn.innerText = "キャラ選択に戻る";
+            resetBtn.onclick = function() {
+                document.getElementById('battle-screen').style.display = "none";
+                document.getElementById('character-select').style.display = "block";
+                createSelectScreen();
+            };
+            container.appendChild(resetBtn);
+        }
+
+        // 画面が読み込まれたら一瞬で起動
+        createSelectScreen();
+    </script>
+</body>
+</html>
