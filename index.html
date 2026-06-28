@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>国語便覧 文豪バトル（問題文修正版）</title>
+    <title>国語便覧 文豪バトル（完全版）</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -231,7 +231,7 @@
         <div class="user-badge" id="login-user-badge">ログイン中</div>
 
         <div id="rules-screen" class="rules-container">
-            <h2>📜 対戦ルール説明</h2>
+            <h2>📜 对戦ルール説明</h2>
             <p>出題される作品や解説を読み、正しい文豪の名前を4択から選んでください。</p>
             <p>文豪ごとに超強力な特殊パッシブスキルが自動で発動します！オンラインでリアルタイムに噛み合うバトルの面白さをご体感ください。</p>
             <div class="mode-select-btns">
@@ -360,7 +360,6 @@
             "鷺沢萠", "浅田次郎", "安岡章太郎", "井上ひさし", "大岡昇平", "原民喜", "谷崎潤一郎", "井伏鱒二", "川上弘美", "江國香織", "山田詠美", "村上春樹", "宮本輝", "向田邦子", "川端康成", "志賀直哉", "樋口一葉", "与謝野晶子", "島崎藤村", "小林多喜二", "江戸川乱歩", "萩原朔太郎", "泉鏡花", "坪内逍遥", "二葉亭四迷", "国木田独歩", "徳冨蘆花", "尾崎紅葉", "幸田露伴", "石川啄木", "高村光太郎", "中原中也", "林芙美子", "徳田秋声", "田山花袋", "石坂洋次郎", "菊池寛", "武者小路実篤", "堀辰雄", "石原慎太郎"
         ];
 
-        // 📝 全て「人物名」を答えさせる形に最適化した問題データ
         const quizData = [
             { hint: "『吾輩は猫である』『こころ』の著者。近代知識人のエゴイズムと苦悩を描いた、千円札の肖像でもおなじみの文豪は誰？", ans: "夏目漱石" },
             { hint: "『人間失格』『走れメロス』の著者。戦後に無頼派・新戯作派の代表作家として若者の圧倒的支持を集めた文豪は誰？", ans: "太宰治" },
@@ -402,7 +401,7 @@
         ];
 
         let player = null, enemy = null, isOnlineMode = false, currentRoomId = "", playerRole = "", isGameover = false;
-        let selectedBungoIndex = 0, currentQuiz = null, onlineSyncTimer = null;
+        let selectedBungoIndex = 0, currentQuiz = null, onlineSyncTimer = null, cpuAttackTimer = null;
         
         let comboCount = 0, hasPoppoyaTriggered = false, hasShinubugawaTriggered = false, firstCorrect敦 = true;
         let pShield = 0, eShield = 0;
@@ -453,6 +452,7 @@
             pShield = 0; eShield = 0; syncLockUntil = 0;
             if (player && player.abName === "親心のバリア") pShield = 40;
             if (enemy && enemy.abName === "親心のバリア") eShield = 40;
+            if (cpuAttackTimer) clearTimeout(cpuAttackTimer);
         }
 
         async function startOnlineGame(role) {
@@ -576,6 +576,7 @@
 
         function nextTurn() {
             if(isGameover) return;
+            if(cpuAttackTimer) clearTimeout(cpuAttackTimer);
             
             if(player.abName === "おせっかいな宇宙人") {
                 player.atk = Math.floor(Math.random() * 31) + 15; 
@@ -602,11 +603,62 @@
                 btn.onclick = () => handleAnswer(name);
                 container.appendChild(btn);
             });
+
+            // 🤖 【CPU対戦のみ】4.5秒（4500ミリ秒）間、回答がない場合にCPUが先制攻撃してくるタイマー
+            if (!isOnlineMode) {
+                cpuAttackTimer = setTimeout(() => {
+                    handleCpuTimeAttack();
+                }, 4500);
+            }
+        }
+
+        // 🤖 CPUの時間経過攻撃処理
+        function handleCpuTimeAttack() {
+            if (isGameover || isOnlineMode) return;
+            
+            const log = document.getElementById('log-text');
+            let logMsg = "⏳ 時間切れ！思考停止している間に CPU が攻撃してきた！";
+            
+            let penalty = enemy.atk || 30;
+            
+            if(player.abName === "砂の壁") {
+                penalty = 0;
+                logMsg += "【砂の壁】により時間切れペナルティを完全無効化！";
+            }
+
+            if(penalty > 0) {
+                if(player.abName === "遠藤周作") penalty = Math.max(1, Math.floor(penalty * 0.85));
+                
+                if(pShield > 0) {
+                    if(pShield >= penalty) { pShield -= penalty; penalty = 0; }
+                    else { penalty -= pShield; pShield = 0; }
+                }
+                player.hp = Math.max(0, player.hp - penalty);
+                logMsg += ` あなたは ${penalty} ダメージを受けた！`;
+            }
+
+            // 特殊スキルのチェック
+            if(player.hp <= 50 && player.hp > 0 && player.abName === "忍ぶ川の情愛" && !hasShinubugawaTriggered) {
+                player.hp += 40; hasShinubugawaTriggered = true;
+                logMsg += " 【忍ぶ川の情愛】HP40回復！";
+            }
+            if(player.hp <= 0 && player.abName === "浅田次郎" && !hasPoppoyaTriggered) {
+                player.hp = 1; hasPoppoyaTriggered = true;
+                logMsg += " 【ぽっぽやの奇跡】一度だけHP1で耐えた！";
+            }
+
+            log.innerText = logMsg; log.style.color = "#ff4d4d";
+            updateDisplay();
+
+            if(!checkBattleOver()) {
+                setTimeout(nextTurn, 1600);
+            }
         }
 
         async function handleAnswer(selectedName) {
             if(isGameover) return;
             if(isOnlineMode && enemy.hp <= 0) return;
+            if(cpuAttackTimer) clearTimeout(cpuAttackTimer); // 回答されたらCPU攻撃タイマーをストップ
 
             syncLockUntil = Date.now() + 1500;
 
@@ -749,11 +801,15 @@
             const log = document.getElementById('log-text');
 
             if(enemy.hp <= 0 && enemy.name !== "待機中...") {
-                isGameover = true; if(onlineSyncTimer) clearInterval(onlineSyncTimer);
+                isGameover = true; 
+                if(onlineSyncTimer) clearInterval(onlineSyncTimer);
+                if(cpuAttackTimer) clearTimeout(cpuAttackTimer);
                 log.innerText = `🎉 勝負あり！対戦相手の ${enemy.name} を撃破！あなたの勝利です！`;
                 log.style.color = "#dab358"; showResetButton(); return true;
             } else if(player.hp <= 0) {
-                isGameover = true; if(onlineSyncTimer) clearInterval(onlineSyncTimer);
+                isGameover = true; 
+                if(onlineSyncTimer) clearInterval(onlineSyncTimer);
+                if(cpuAttackTimer) clearTimeout(cpuAttackTimer);
                 log.innerText = `💀 勝負あり！あなたの ${player.name} は力尽きた… 敗北です。`;
                 log.style.color = "#ff4d4d"; showResetButton(); return true;
             }
