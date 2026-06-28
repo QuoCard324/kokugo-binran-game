@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>国語便覧 文豪バトルカードゲーム（オンライン通信修正版）</title>
+    <title>国語便覧 文豪バトル（HP同期修正版）</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -231,7 +231,7 @@
         <div class="user-badge" id="login-user-badge">ログイン中</div>
 
         <div id="rules-screen" class="rules-container">
-            <h2>📜 対戦ルール説明</h2>
+            <h2>📜 对戦ルール説明</h2>
             <p>出題される作品や解説を読み、正しい文豪の名前を4択から選んでください。</p>
             <p>文豪ごとに超強力な特殊パッシブスキルが自動で発動します！オンラインでリアルタイムに噛み合うバトルの面白さをご体感ください。</p>
             <div class="mode-select-btns">
@@ -328,7 +328,6 @@
             return fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, { ...options, headers: { ...headers, ...options.headers } });
         }
 
-        // 📊 指定の12名を除外した、安全な厳選22名リスト
         const bungoData = [
             { name: "太宰治", hp: 240, maxHp: 240, atk: 35, baseAtk: 35, abName: "人間失格", desc: "HPが半分以下になると攻撃力1.3倍" },
             { name: "夏目漱石", hp: 360, maxHp: 360, atk: 25, baseAtk: 25, abName: "月が綺麗ですね", desc: "正解時25%の確率でHP30回復" },
@@ -355,14 +354,12 @@
             { name: "浅田次郎", hp: 330, maxHp: 330, atk: 28, baseAtk: 28, abName: "ぽっぽやの奇跡", desc: "致死ダメージを受けても一度だけHP1で耐える" }
         ];
 
-        // 🧠 問題のダミー用に12名を含む全リストを維持
         const allBungoNamesForDummy = [
             "太宰治", "夏目漱石", "芥川龍之介", "中島敦", "森鴎外", "宮沢賢治", "鴨長明", "永井荷風", "野間宏", "梅崎春生", 
             "三島由紀夫", "安部公房", "井上靖", "三浦哲郎", "開高健", "遠藤周作", "大江健三郎", "幸田文", "重松清", "星新一", 
             "鷺沢萠", "浅田次郎", "安岡章太郎", "井上ひさし", "大岡昇平", "原民喜", "谷崎潤一郎", "井伏鱒二", "川上弘美", "江國香織", "山田詠美", "村上春樹", "宮本輝", "向田邦子"
         ];
 
-        // 📝 クイズデータ（55問完全維持）
         const quizData = [
             { hint: "『吾輩は猫である』『こころ』の著者。近代知識人の苦悩を描いた。", ans: "夏目漱石" },
             { hint: "『人間失格』『走れメロス』の著者。無頼派の代表作家。", ans: "太宰治" },
@@ -381,7 +378,7 @@
             { hint: "『人間の椅子』『怪人二十面相』の著者。日本推理小説の開拓者。", ans: "江戸川乱歩" },
             { hint: "詩集『月に吠える』『青猫』の著者。日本の近代口語自由詩を完成させた。", ans: "萩原朔太郎" },
             { hint: "『檸檬』の著者。丸善の書棚に爆弾に見立てた果物を置く描写が有名。", ans: "梶井基次郎" },
-            { hint: "『高野盛』『歌行燈』の著者。観念小説や幻想文学の先駆者。", ans: "泉鏡花" },
+            { hint: "『高野聖』『歌行燈』の著者。観念小説や幻想文学の先駆者。", ans: "泉鏡花" },
             { hint: "『小説神髄』『当世書生気質』の著者。写実主義を提唱した。", ans: "坪内逍遥" },
             { hint: "『浮雲』の著者。言文一致体の先駆者として日本の近代小説の祖となった。", ans: "二葉亭四迷" },
             { hint: "『武蔵野』の著者。自然を愛し、叙情的な国木田独歩の代表作。", ans: "国木田独歩" },
@@ -418,7 +415,7 @@
             { hint: "『藪の中』の著者。一つの事件を巡り複数の目撃者が矛盾した証言をする、現代でも多用されるプロットの生みの親。", ans: "芥川龍之介" },
             { hint: "『坊っちゃん』の舞台であり、夏目漱石自身が英語教師として赴任していた愛媛県の都市。", ans: "松山市" },
             { hint: "『五重塔』を著し、当時の幸田露伴の文学的ポジションを尾崎紅葉と並べて「○露時代」という。", ans: "紅" },
-            { hint: "『細雪』の舞台。谷崎潤一郎が関東大震災を機に移住し、多大な影響を受けた日本の地域。", ans: "関西" }
+            { hint: "『細雪』の舞台。谷崎潤一郎が関東大震災を機に移移住し、多大な影響を受けた日本の地域。", ans: "関西" }
         ];
 
         let player = null, enemy = null, isOnlineMode = false, currentRoomId = "", playerRole = "", isGameover = false;
@@ -426,6 +423,9 @@
         
         let comboCount = 0, hasPoppoyaTriggered = false, hasShinubugawaTriggered = false, firstCorrect敦 = true;
         let pShield = 0, eShield = 0;
+        
+        // ⚡ 同期ガタつき防止用のロックスイッチ
+        let syncLockUntil = 0;
 
         function goToSelectScreen(online) {
             isOnlineMode = online;
@@ -468,12 +468,11 @@
 
         function initAbilities() {
             comboCount = 0; hasPoppoyaTriggered = false; hasShinubugawaTriggered = false; firstCorrect敦 = true;
-            pShield = 0; eShield = 0;
+            pShield = 0; eShield = 0; syncLockUntil = 0;
             if (player && player.abName === "親心のバリア") pShield = 40;
             if (enemy && enemy.abName === "親心のバリア") eShield = 40;
         }
 
-        // ⚡ Supabaseの規定カラム（id, h_name, h_ab, g_name, g_ab）のみを厳密に送信するロジック
         async function startOnlineGame(role) {
             const roomNum = document.getElementById('room-input').value;
             if(!roomNum) { alert("部屋番号を入力してください"); return; }
@@ -492,17 +491,11 @@
             const myStatusStr = `${player.hp}_${player.atk}_${player.abName}_${pShield}`;
 
             if(role === 'host') {
-                // 既存の古い同番号部屋を完全に消去
                 await supabaseFetch(`rooms?id=eq.${currentRoomId}`, { method: "DELETE" });
-                // テーブル構造に完全準拠した最小限のインサート
                 await supabaseFetch("rooms", {
                     method: "POST",
                     body: JSON.stringify({
-                        id: currentRoomId,
-                        h_name: player.name,
-                        h_ab: myStatusStr,
-                        g_name: "待機中...",
-                        g_ab: "0_0_-_0"
+                        id: currentRoomId, h_name: player.name, h_ab: myStatusStr, g_name: "待機中...", g_ab: "0_0_-_0"
                     })
                 });
             } else {
@@ -515,15 +508,10 @@
                 enemy = { name: room.h_name, hp: parseInt(hData[0]), maxHp: parseInt(hData[0]), atk: parseInt(hData[1]), baseAtk: parseInt(hData[1]), abName: hData[2] };
                 if (enemy.abName === "親心のバリア") eShield = 40;
 
-                // ゲストデータをマージ
                 await supabaseFetch("rooms", {
                     method: "POST",
                     body: JSON.stringify({
-                        id: currentRoomId,
-                        h_name: room.h_name, 
-                        h_ab: room.h_ab,
-                        g_name: player.name,
-                        g_ab: myStatusStr
+                        id: currentRoomId, h_name: room.h_name, h_ab: room.h_ab, g_name: player.name, g_ab: myStatusStr
                     }),
                     headers: { "Prefer": "resolution=merge-duplicates" }
                 });
@@ -538,6 +526,7 @@
         async function syncOnlineData() {
             if(isGameover || !isOnlineMode) return;
 
+            const now = Date.now();
             const myStatusStr = `${player.hp}_${player.atk}_${player.abName}_${pShield}`;
             const payload = playerRole === 'host' ? { h_ab: myStatusStr } : { g_ab: myStatusStr };
             
@@ -547,33 +536,35 @@
             if(rooms && rooms.length > 0) {
                 const room = rooms[0];
                 
-                if(playerRole === 'host') {
-                    const gData = room.g_ab.split('_');
-                    if(room.g_name !== "待機中...") {
-                        enemy.name = room.g_name;
-                        enemy.hp = parseInt(gData[0]);
-                        enemy.atk = parseInt(gData[1]);
-                        enemy.abName = gData[2];
-                        eShield = parseInt(gData[3]) || 0;
+                // ⚡ クイズ解答直後の「ガタつき発生時間帯」は、相手からの古いデータ上書きをスキップする
+                if(now > syncLockUntil) {
+                    if(playerRole === 'host') {
+                        const gData = room.g_ab.split('_');
+                        if(room.g_name !== "待機中...") {
+                            enemy.name = room.g_name;
+                            enemy.hp = parseInt(gData[0]);
+                            enemy.atk = parseInt(gData[1]);
+                            enemy.abName = gData[2];
+                            eShield = parseInt(gData[3]) || 0;
+                        }
+                        const hData = room.h_ab.split('_');
+                        player.hp = parseInt(hData[0]);
+                        pShield = parseInt(hData[3]) || 0;
+                    } else {
+                        const hData = room.h_ab.split('_');
+                        enemy.name = room.h_name;
+                        enemy.hp = parseInt(hData[0]);
+                        enemy.atk = parseInt(hData[1]);
+                        enemy.abName = hData[2];
+                        eShield = parseInt(hData[3]) || 0;
+                        
+                        const gData = room.g_ab.split('_');
+                        player.hp = parseInt(gData[0]);
+                        pShield = parseInt(gData[3]) || 0;
                     }
-                    const hData = room.h_ab.split('_');
-                    player.hp = parseInt(hData[0]);
-                    pShield = parseInt(hData[3]) || 0;
-                } else {
-                    const hData = room.h_ab.split('_');
-                    enemy.name = room.h_name;
-                    enemy.hp = parseInt(hData[0]);
-                    enemy.atk = parseInt(hData[1]);
-                    enemy.abName = hData[2];
-                    eShield = parseInt(hData[3]) || 0;
-                    
-                    const gData = room.g_ab.split('_');
-                    player.hp = parseInt(gData[0]);
-                    pShield = parseInt(gData[3]) || 0;
                 }
             }
 
-            // 安全に同期更新
             await supabaseFetch(`rooms?id=eq.${currentRoomId}`, { method: "PATCH", body: JSON.stringify(payload) });
             updateDisplay();
             checkBattleOver();
@@ -635,6 +626,9 @@
         async function handleAnswer(selectedName) {
             if(isGameover) return;
             if(isOnlineMode && enemy.hp <= 0) return;
+
+            // ⚡ 行動した瞬間から1.5秒間、外部の古いデータ同期をロックする
+            syncLockUntil = Date.now() + 1500;
 
             const log = document.getElementById('log-text');
             let logMsg = "";
