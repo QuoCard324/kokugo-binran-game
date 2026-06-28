@@ -386,7 +386,6 @@
             updateDisplay();
             nextTurn();
 
-            // ⚔️ 敵の攻撃間隔を「4.5秒（4500ミリ秒）」に緩和調整！
             if(enemyAttackTimer) clearInterval(enemyAttackTimer);
             enemyAttackTimer = setInterval(enemyActiveAttack, 4500);
         }
@@ -577,7 +576,9 @@
             if (!checkBattleOver()) {
                 const buttons = document.querySelectorAll('.btn');
                 buttons.forEach(b => b.disabled = true);
-                setTimeout(nextTurn, 2000); 
+                
+                // ⏱️ ここを「1000ミリ秒（1秒）」に短縮してテンポを良くしました！
+                setTimeout(nextTurn, 700); 
             }
         }
 
