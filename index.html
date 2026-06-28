@@ -167,7 +167,7 @@
     <p class="subtitle">正しい知識を選び、特殊能力で勝利を掴め！</p>
 
     <div id="rules-screen" class="rules-container">
-        <h2>📜 対戦ルール説明</h2>
+        <h2>📜 对战ルール説明</h2>
         <div class="rules-content">
             <h3>⚔️ 基本ルール</h3>
             <ul>
@@ -181,7 +181,7 @@
     </div>
 
     <div id="character-select" class="select-container">
-        <h2>出陣する文豪を選択（総勢29名）</h2>
+        <h2>出陣する文豪を選択（総勢23名）</h2>
         <div class="select-grid" id="select-grid-container"></div>
     </div>
 
@@ -213,6 +213,7 @@
     <script>
         // クイズ問題用：全35名のデータ
         const bungoData = [
+            // キャラ選択に残す14名（元のメインキャラ）
             { name: "太宰治", hp: 240, maxHp: 240, atk: 35, hint: "『人間失格』『走れメロス』の著者。心中未遂を繰り返し、39歳で玉川上水にて入水。", abName: "人間失格", abDesc: "HP半分以下でATK1.3倍", isPlayable: true },
             { name: "夏目漱石", hp: 360, maxHp: 360, atk: 25, hint: "『吾輩は猫である』『こころ』の著者。千円札の肖像でも有名。イギリス留学で神経衰弱に。", abName: "月が綺麗ですね", abDesc: "正解時25%でHP30回復", isPlayable: true },
             { name: "芥川龍之介", hp: 200, maxHp: 200, atk: 40, hint: "『羅生門』『蜘蛛の糸』の著者。「ぼんやりとした不安」を理由に自ら命を絶った天才短編作家。", abName: "蜘蛛の糸", abDesc: "被弾時、敵HPを10奪う", isPlayable: true },
@@ -222,28 +223,32 @@
             { name: "鴨長明", hp: 220, maxHp: 220, atk: 38, hint: "「ゆく河の流れは絶えずして…」で知られる鎌倉時代の代表的な随筆『方丈記』の著者。", abName: "無常観", abDesc: "5連正解で敵ATKを永久半減", isPlayable: true },
             { name: "重松清", hp: 320, maxHp: 320, atk: 26, hint: "現代の作家。『ナイフ』『エイジ』『とんび』など、現代のいじめや家族の葛藤をリアルに描く。", abName: "親心のバリア", abDesc: "開始時に耐久40のシールド", isPlayable: true },
             { name: "鷺沢萠", hp: 260, maxHp: 260, atk: 34, hint: "現役女子大生作家として注目され『川べりの道』や『駆ける少年』を発表。若者の孤独を描いた。", abName: "駆ける衝動", abDesc: "毎ターン終了時敵に10ダメージ", isPlayable: true },
+            
+            // 追加分からキャラ選択に残す9名
             { name: "永井荷風", hp: 310, maxHp: 310, atk: 27, hint: "耽美派の作家。フランス・アメリカ留学を経て、江戸情緒や花柳界を描いた『濹東綺譚』を残す。", abName: "断腸亭日乗", abDesc: "毎ターン敵のHPを5吸収", isPlayable: true },
-            { name: "井伏鱒二", hp: 340, maxHp: 340, atk: 25, hint: "『山椒魚』や、原爆の悲劇を描いた『黒い雨』の著者。ユーモアと庶民的な温かみのある文体が特徴。", abName: "日常のユーモア", abDesc: "クイズ正解時、追加で敵に10ダメージ", isPlayable: true },
-            { name: "谷崎潤一郎", hp: 250, maxHp: 250, atk: 36, hint: "耽美派の巨匠。『痴人の愛』『春琴抄』『細雪』の著者。女性崇拝や伝統的な日本語の美を追求した。", abName: "悪魔主義", abDesc: "クイズ正解時、1.5倍ダメージ", isPlayable: true },
             { name: "梶井基次郎", hp: 210, maxHp: 210, atk: 38, hint: "短編の名手。肺結核に苦しみながら、丸善の棚の洋書の上にレモンを置いて去る心理を描いた『檸檬』が有名。", abName: "鮮烈なる檸檬", abDesc: "HPが減るほどATK最大1.5倍", isPlayable: true },
             { name: "野間宏", hp: 300, maxHp: 300, atk: 29, hint: "第一次戦後派の作家。自身の軍隊経験を基に、抑圧された人間の心理を克明に描いた『真空地帯』が代表作。", abName: "真空地帯", abDesc: "HPが30%以下になるとATKが1.4倍", isPlayable: true },
-            { name: "原民喜", hp: 230, maxHp: 230, atk: 35, hint: "詩人・小説家。広島での被爆体験をリアルかつ痛切に描いた原爆文学の金字塔『夏の花』の著者。", abName: "夏の花", abDesc: "自分が倒れた時、敵に40ダメージの道連れ", isPlayable: true },
             { name: "梅崎春生", hp: 290, maxHp: 290, atk: 30, hint: "戦後派作家。特攻基地の暗号兵としての張り詰めた日常と人間のエゴを描いた『桜島』で一躍有名に。", abName: "戦後の幻影", abDesc: "敵のリアルタイム自動攻撃の威力を2軽減", isPlayable: true },
-            { name: "大岡昇平", hp: 280, maxHp: 280, atk: 33, hint: "戦後派の重鎮。レイテ島での捕虜経験を基にした『俘虜記』や、極限状態での人肉食を扱った『野火』が代表作。", abName: "野火の記憶", abDesc: "敵にダメージを与える度、自身のHPが5回復", isPlayable: true },
             { name: "三島由紀夫", hp: 200, maxHp: 200, atk: 48, hint: "『仮面の告白』『金閣寺』の著者。完璧な言語美と肉体美を追求し、最後は市ヶ谷の自衛隊駐屯地で自決。", abName: "金閣炎上", abDesc: "ATKが高いが、毎ターンHPが7減少", isPlayable: true },
             { name: "安部公房", hp: 330, maxHp: 330, atk: 26, hint: "前衛文学の旗手。砂の穴の底に閉じ込められた男の不条理を描いた『砂の女』や『箱男』で世界的に評価された。", abName: "砂の壁", abDesc: "クイズ不正解時の敵の反撃を完全無効化", isPlayable: true },
             { name: "井上靖", hp: 350, maxHp: 350, atk: 26, hint: "歴史小説の大家。シルクロードや仏教を題材にした『天平の甍』『敦煌』や、自伝的小説『しろばんば』が有名。", abName: "天平の甍", abDesc: "3連正解で自身のHPを40回復", isPlayable: true },
             { name: "三浦哲郎", hp: 310, maxHp: 310, atk: 29, hint: "純文学作家。兄姉が次々と失踪・自殺した自身の悲劇的な家系を見つめ、ひたむきな愛を描いた『忍ぶ川』で芥川賞。", abName: "忍ぶ川の情愛", abDesc: "HPが50以下になると一度だけHPが40回復", isPlayable: true },
-            { name: "安岡章太郎", hp: 320, maxHp: 320, atk: 27, hint: "「第三の新人」の代表格。自身の劣等感や、没落していく家庭の姿をユーモラスかつ冷徹に描いた『悪い仲間』など。", abName: "陰気なユーモア", abDesc: "不正解時、敵のATKを3ターンの間「5」下げる", isPlayable: true },
             { name: "開高健", hp: 300, maxHp: 300, atk: 32, hint: "ルポルタージュ作家。ベトナム戦争の最前線に従軍した経験を描いた『輝ける闇』や、壮大な釣りエッセイで知られる。", abName: "熱き輝ける闇", abDesc: "正解時、15%の確率で敵に2倍ダメージ", isPlayable: true },
             { name: "遠藤周作", hp: 340, maxHp: 340, atk: 25, hint: "キリスト教作家。江戸時代のキリシタン弾圧と信者の苦悩、神の沈黙を描いた名作『沈黙』の著者。", abName: "大いなる沈黙", abDesc: "受けるすべてのダメージを常に15%カット", isPlayable: true },
             { name: "大江健三郎", hp: 270, maxHp: 270, atk: 36, hint: "1994年ノーベル文学賞受賞。障害を持つ息子との生を描いた『個人的な体験』や『万延元年のフットボール』を執筆。", abName: "個人的な神話", abDesc: "クイズに正解する度に、自身のATKが3ずつ上昇", isPlayable: true },
             { name: "幸田文", hp: 330, maxHp: 330, atk: 26, hint: "幸田露伴の娘。父の厳しい躾や死を綴った随筆や、芸者置屋の日常を緻密に描いた小説『流れる』で知られる。", abName: "凛々しき流れる", abDesc: "敵の自動攻撃を受けた際、15%の確率で無効化", isPlayable: true },
             { name: "星新一", hp: 260, maxHp: 260, atk: 30, hint: "「ショートショートの神様」。生涯に1000編以上の超短編SFを残す。代表作に『ボッコちゃん』など。", abName: "おせっかいな宇宙人", abDesc: "毎ターンATKが15〜45の間でランダムに変動", isPlayable: true },
             { name: "浅田次郎", hp: 330, maxHp: 330, atk: 28, hint: "「平成の泣かせ屋」。鉄道員の老境と奇跡を描いた『鉄道員（ぽっぽや）』や、中国の歴史巨編『蒼穹の昴』の著者。", abName: "ぽっぽやの奇跡", abDesc: "HPが0になるダメージを受けた時、一度だけHP1で耐える", isPlayable: true },
-            { name: "井上ひさし", hp: 300, maxHp: 300, atk: 28, hint: "劇作家・小説家。東北の架空の村が独立を宣言する『吉里吉里人』や、言葉遊びを駆使した劇作『父と暮せば』など。", abName: "ひさしの言葉遊び", abDesc: "選択肢の文豪の名前がすべてコミカルな偽名になる", isPlayable: true },
             
-            // 【クイズのお題・選択肢専用（キャラとしては出現しない6名）】
+            // 【今回「問題専用」に変更した6名】
+            { name: "安岡章太郎", hint: "「第三の新人」の代表格。自身の劣等感や、没落していく家庭の姿をユーモラスかつ冷徹に描いた『悪い仲間』『海辺の光景』など。", isPlayable: false },
+            { name: "井上ひさし", hint: "劇作家・小説家。東北の架空の村が独立を宣言する『吉里吉里人』や、言葉遊びを駆使した劇作『父と暮せば』など。", isPlayable: false },
+            { name: "大岡昇平", hint: "戦後派の重鎮。レイテ島での捕虜経験を基にした『俘虜記』や、極限状態での人肉食を扱った『野火』が代表作。", isPlayable: false },
+            { name: "原民喜", hint: "詩人・小説家。広島での被爆体験をリアルかつ痛切に描いた原爆文学の金字塔『夏の花』の著者。", isPlayable: false },
+            { name: "谷崎潤一郎", hint: "耽美派の巨匠。『痴人の愛』『春琴抄』『細雪』の著者。女性崇拝や伝統的な日本語の美を追求した。", isPlayable: false },
+            { name: "井伏鱒二", hint: "『山椒魚』や、原爆の悲劇を描いた『黒い雨』の著者。ユーモアと庶民的な温かみのある文体が特徴。", isPlayable: false },
+
+            // 【前回「問題専用」にした6名】
             { name: "川上弘美", hint: "年の離れた元教師との恋を浮遊感のある文体で描いた『センセイの鞄』や、芥川賞受賞作『蛇を踏む』の著者。", isPlayable: false },
             { name: "江國香織", hint: "清澄な文体で、少し歪んだ幸福を描く作家。『きらきらひかる』や、直木賞受賞作『号泣する準備はできていた』など。", isPlayable: false },
             { name: "山田詠美", hint: "米軍基地周辺の恋愛を描いた『ベッドタイムアイズ』や、少年少女の成長と傷を描く『風葬の教室』などの著者。", isPlayable: false },
@@ -252,7 +257,7 @@
             { name: "向田邦子", hint: "昭和の家庭の裏に潜む人間の機微を鋭く切り取った短編集『思い出トランプ』で直木賞を受賞した脚本家・エッセイスト。", isPlayable: false }
         ];
 
-        // 使用可能なキャラクター（isPlayableがtrueのものだけ）を抽出
+        // キャラクター選択・敵出現はisPlayableがtrueのものだけ（計23名）
         const playableBungo = bungoData.filter(b => b.isPlayable);
 
         let player = null, enemy = null, currentQuizAnswer = "", isGameover = false, enemyAttackTimer = null; 
@@ -351,7 +356,7 @@
 
         function nextTurn() {
             if (isGameover) return;
-            // クイズ問題は、キャラクター対象外の6名も含めた全35名からランダムに出題
+            // 問題自体は、非表示にした12名分を含めた全35名からランダムに出題
             const quizSource = bungoData[Math.floor(Math.random() * bungoData.length)];
             currentQuizAnswer = quizSource.name;
             document.getElementById('hint-text').innerText = quizSource.hint;
@@ -368,11 +373,7 @@
             choices.forEach(name => {
                 const btn = document.createElement('button');
                 btn.className = "btn";
-                if (player.name === "井上ひさし" && name !== currentQuizAnswer) {
-                    btn.innerText = name + "（偽物）";
-                } else {
-                    btn.innerText = name;
-                }
+                btn.innerText = name;
                 btn.onclick = () => handleAction(name);
                 container.appendChild(btn);
             });
@@ -393,7 +394,6 @@
 
                 if (player.name === "太宰治" && player.hp <= (player.maxHp / 2)) { damage = Math.floor(damage * 1.3); abLog += "【能力】『人間失格』1.3倍！<br>"; }
                 if (player.name === "中島敦" && !isAtsushiTriggered) { damage *= 2; isAtsushiTriggered = true; abLog += "【能力】『月下獣』2倍！<br>"; }
-                if (player.name === "谷崎潤一郎") { damage = Math.floor(damage * 1.5); abLog += "【能力】『悪魔主義』クリティカル1.5倍！<br>"; }
                 if (player.name === "梶井基次郎") { let ratio = 1 + (1 - player.hp / player.maxHp) * 0.5; damage = Math.floor(damage * ratio); abLog += "【能力】『檸檬』ピンチで威力強化！<br>"; }
                 if (player.name === "野間宏" && player.hp <= (player.maxHp * 0.3)) { damage = Math.floor(damage * 1.4); abLog += "【能力】『真空地帯』1.4倍！<br>"; }
                 if (player.name === "大江健三郎") { player.atk += 3; abLog += "【能力】『個人的な体験』ATKが3永続上昇！<br>"; }
@@ -402,8 +402,6 @@
                 actionLog = `⭕正解！ ${damage} ダメージ！`;
 
                 if (player.name === "夏目漱石" && Math.random() < 0.25) { player.hp = Math.min(player.maxHp, player.hp + 30); abLog += "【能力】HP30回復！<br>"; }
-                if (player.name === "井伏鱒二") { enemy.hp -= 10; abLog += "【能力】『山椒魚』追撃10ダメージ！<br>"; }
-                if (player.name === "大岡昇平") { player.hp = Math.min(player.maxHp, player.hp + 5); abLog += "【能力】生命吸収5回復！<br>"; }
                 if (player.name === "井上靖" && playerStreakCount % 3 === 0) { player.hp = Math.min(player.maxHp, player.hp + 40); abLog += "【能力】『敦煌』3連正解で40回復！<br>"; }
                 if (player.name === "開高健" && Math.random() < 0.15) { damage *= 2; abLog += "【能力】『輝ける闇』豪快に2倍ダメージ！<br>"; }
                 if (player.name === "鴨長明" && playerStreakCount === 5 && !isChomeiTriggered) { enemy.atk = Math.floor(enemy.atk / 2); isChomeiTriggered = true; abLog += "【能力】『無常観』敵ATK永久半減！<br>"; }
@@ -420,7 +418,6 @@
                     else {
                         if (player.name === "宮沢賢治") { eDmg = Math.max(1, eDmg - 5); abLog += "【能力】5軽減！<br>"; }
                         if (player.name === "遠藤周作") { eDmg = Math.floor(eDmg * 0.85); abLog += "【能力】15%カット！<br>"; }
-                        if (player.name === "安岡章太郎") { enemy.atk = Math.max(5, enemy.atk - 5); abLog += "【能力】『悪い仲間』敵のATKを5弱体化！<br>"; }
 
                         if (playerShield > 0) {
                             if (playerShield >= eDmg) { playerShield -= eDmg; actionLog = `❌不正解… 正解は ${currentQuizAnswer}。反撃をシールドが ${eDmg} 吸収！`; } 
@@ -456,7 +453,6 @@
                 log.style.color = "#dab358"; showResetButton(); return true;
             } else if (player.hp <= 0) {
                 isGameover = true; if(enemyAttackTimer) clearInterval(enemyAttackTimer);
-                if (player.name === "原民喜") { enemy.hp -= 40; log.innerHTML += "<br>【能力発動】『夏の花』散り際の道連れ40ダメージ！"; }
                 log.innerHTML = `💀 勝負あり！ ${player.name} が倒れた… あなたの敗北です。`;
                 log.style.color = "#ff4d4d"; showResetButton(); return true;
             }
