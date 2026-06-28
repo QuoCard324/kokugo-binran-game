@@ -244,13 +244,13 @@
     <p class="subtitle">正しい知識を選び、特殊能力で勝利を掴め！</p>
 
     <div id="rules-screen" class="rules-container">
-        <h2>📜 对戦ルール説明</h2>
+        <h2>📜 対戦ルール説明</h2>
         <div class="rules-content">
             <h3>⚔️ 基本ルール</h3>
             <ul>
                 <li>出題される文学的特徴やエピソード（お題）を読み、正しい文豪の名前を4択から選んでください。</li>
                 <li><span class="highlight-text">正解時</span>：自分の文豪が持つATK（攻撃力）で相手にダメージを与えます。</li>
-                <li><span class="danger-text">⚠️ 敵のリアルタイム自動攻撃</span>：敵の文豪はクイズに関係なく、<span class="danger-text">3.5秒ごとに自動であなたを攻撃</span>してきます！のんびり考えていると一瞬でやられます！</li>
+                <li><span class="danger-text">⚠️ 敵のリアルタイム自動攻撃</span>：敵の文豪はクイズに関係なく、<span class="danger-text">4.5秒ごとに自動であなたを攻撃</span>してきます！のんびり考えているとやられます！</li>
                 <li><span class="danger-text">不正解時</span>：ペナルティとして、即座に敵から手痛い反撃ダメージを受けます。</li>
                 <li>先に相手のHPを0にした方の勝利となります。</li>
             </ul>
@@ -262,7 +262,7 @@
                 <li class="ability-list-item"><strong>芥川龍之介【蜘蛛の糸】</strong>: 敵からダメージを受けた際（自動攻撃含む）、敵のHPを10奪って自分を回復する。</li>
                 <li class="ability-list-item"><strong>中島敦【月下獣】</strong>: 最初の正解時のみ、与えるダメージが2倍になる。</li>
                 <li class="ability-list-item"><strong>森鴎外【舞姫】</strong>: 20%の確率で、敵からのあらゆる攻撃を完全に見切って回避する。</li>
-                <li class="ability-list-item"><strong>宮沢賢治【雨ニモマケズ】</strong>: 受けるダメージを常に「5」軽減する.</li>
+                <li class="ability-list-item"><strong>宮沢賢治【雨ニモマケズ】</strong>: 受けるダメージを常に「5」軽減する。</li>
                 <li class="ability-list-item"><strong>鴨長明【無常観】</strong>: クイズに<span class="highlight-text">5問連続正解</span>すると、敵のATKを永久に半減させる。</li>
                 <li class="ability-list-item"><strong>重松清【親心のバリア】</strong>: バトル開始時、敵の攻撃を防ぐ耐久値40のシールドを張る。</li>
                 <li class="ability-list-item"><strong>鷺沢萠【駆ける少年の衝動】</strong>: 毎ターン（クイズ解答時）、敵のHPに10の固定ダメージを与える。</li>
@@ -307,7 +307,7 @@
     </div>
 
     <script>
-        // 文豪データ（HPを2倍に完全固定！）
+        // 文豪データ
         const bungoData = [
             { name: "太宰治", hp: 240, maxHp: 240, atk: 35, hint: "「恥の多い生涯を送って来ました」で始まる『人間失格』の著者。心中未遂を繰り返した。", abName: "人間失格", abDesc: "HP半分以下でATK1.3倍" },
             { name: "夏目漱石", hp: 360, maxHp: 360, atk: 25, hint: "イギリス留学で神経衰弱になる。『吾輩は猫である』で一躍有名に。「月が綺麗ですね」の逸話も。", abName: "月が綺麗ですね", abDesc: "正解時25%の確率でHP30回復" },
@@ -324,7 +324,7 @@
         let enemy = null;
         let currentQuizAnswer = "";
         let isGameover = false;
-        let enemyAttackTimer = null; // 敵の自動攻撃タイマー
+        let enemyAttackTimer = null; 
 
         let playerStreakCount = 0;
         let playerShield = 0;
@@ -386,9 +386,9 @@
             updateDisplay();
             nextTurn();
 
-            // ⚔️ キャラ選択が完全に終わってからタイマースタート
+            // ⚔️ 敵の攻撃間隔を「4.5秒（4500ミリ秒）」に緩和調整！
             if(enemyAttackTimer) clearInterval(enemyAttackTimer);
-            enemyAttackTimer = setInterval(enemyActiveAttack, 3500);
+            enemyAttackTimer = setInterval(enemyActiveAttack, 4500);
         }
 
         function enemyActiveAttack() {
@@ -517,7 +517,7 @@
                 if (player.name === "鴨長明" && playerStreakCount === 5 && !isChomeiTriggered) {
                     enemy.atk = Math.floor(enemy.atk / 2);
                     isChomeiTriggered = true;
-                    abilityLog += "【能力発動】『無常観』！驚異 of 5連正解！世の無常を見せつけ敵のATKを永久半減！<br>";
+                    abilityLog += "【能力発動】『無常観』！驚異の5連正解！世の無常を見せつけ敵のATKを永久半減！<br>";
                 }
 
                 log.style.color = "#00ffcc";
