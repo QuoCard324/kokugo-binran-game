@@ -540,30 +540,28 @@
 
         // 22名の文豪データ
         const bungoData = [
-            { name: "太宰治", hp: 240, maxHp: 240, atk: 35, baseAtk: 35, abName: "人間失格", desc: "HPが半分以下になると攻撃力1.3倍" },
-            { name: "夏目漱石", hp: 360, maxHp: 360, atk: 25, baseAtk: 25, abName: "月が綺麗ですね", desc: "正解時25%の確率でHP30回復" },
-            { name: "芥川龍之介", hp: 200, maxHp: 200, atk: 40, baseAtk: 40, abName: "蜘蛛の糸", desc: "自分がクイズに正解した時、敵のHPを10奪って回復する" },
-            { name: "中島敦", hp: 300, maxHp: 300, atk: 30, baseAtk: 30, abName: "月下獣", desc: "最初の正解時のみ与ダメージが2倍" },
-            { name: "森鴎外", hp: 320, maxHp: 320, atk: 28, baseAtk: 28, abName: "舞姫", desc: "20%の確率で敵の攻撃を完全回避" },
-            { name: "宮沢賢治", hp: 280, maxHp: 280, atk: 32, baseAtk: 32, abName: "雨ニモマケズ", desc: "受ける全てのダメージを一律5軽減" },
-            { name: "鴨長明", hp: 220, maxHp: 220, atk: 38, baseAtk: 38, abName: "無常観", desc: "5連続正解すると敵のATKを永久半減" },
-            { name: "永井荷風", hp: 310, maxHp: 310, atk: 27, baseAtk: 27, abName: "断腸亭日乗", desc: "毎ターン終了時、敵のHPを5吸収" },
-            { name: "梶井基次郎", hp: 210, maxHp: 210, atk: 38, baseAtk: 38, abName: "鮮烈なる檸檬", desc: "HPが減るほどATKが最大1.5倍に" },
-            { name: "野間宏", hp: 300, maxHp: 300, atk: 29, baseAtk: 29, abName: "真空地帯", desc: "HP30%以下でATKが1.4倍に上昇" },
-            { name: "梅崎春生", hp: 290, maxHp: 290, atk: 30, baseAtk: 30, abName: "戦後の幻影", desc: "被ダメージを常に2軽減する" },
-            { name: "三島由紀夫", hp: 200, maxHp: 200, atk: 48, baseAtk: 48, abName: "金閣炎上", desc: "最高ATKだが毎ターンHPが7自傷" },
-            { name: "安部公房", hp: 330, maxHp: 330, atk: 26, baseAtk: 26, abName: "砂の壁", desc: "クイズ誤答時のペナルティ反撃を完全無効" },
-            { name: "井上靖", hp: 350, maxHp: 350, atk: 26, baseAtk: 26, abName: "天平の甍", desc: "3連正解するたびにHP40大回復" },
-            { name: "三浦哲郎", hp: 310, maxHp: 310, atk: 29, baseAtk: 29, abName: "忍ぶ川の情愛", desc: "HP50以下になると一度だけHP40回復" },
-            { name: "開高健", hp: 300, maxHp: 300, atk: 32, baseAtk: 32, abName: "熱き輝ける闇", desc: "正解時15%の確率で2倍ダメージ" },
-            { name: "遠藤周作", hp: 340, maxHp: 340, atk: 25, baseAtk: 25, abName: "大いなる沈黙", desc: "すべての被ダメージを常に15%カット" },
-            { name: "大江健三郎", hp: 270, maxHp: 270, atk: 36, baseAtk: 36, abName: "個人的な神話", desc: "正解するたびに自身のATKが永続で3加算" },
-            { name: "幸田文", hp: 330, maxHp: 330, atk: 26, baseAtk: 26, abName: "凛々しき流れる", desc: "攻撃を受けた際15%の確率で無効化" },
-            { name: "重松清", hp: 320, maxHp: 320, atk: 26, baseAtk: 26, abName: "親心のバリア", desc: "開幕に耐久40のシールドを展開" },
-            { name: "星新一", hp: 260, maxHp: 260, atk: 30, baseAtk: 30, abName: "おせっかいな宇宙人", desc: "毎ターンATKが15〜45の間でランダム変動" },
-            { name: "鷺沢萠", hp: 260, maxHp: 260, atk: 34, baseAtk: 34, abName: "駆ける衝動", desc: "毎ターン終了時に敵に10の固定ダメージ" },
-            { name: "浅田次郎", hp: 330, maxHp: 330, atk: 28, baseAtk: 28, abName: "ぽっぽやの奇跡", desc: "致死ダメージを受けても一度だけHP1で耐える" }
-        ];
+    { name: "太宰治", hp: 240, maxHp: 240, atk: 35, abName: "人間失格", desc: "⚡人間失格: HPが半分以下になると攻撃力1.3倍" },
+    { name: "夏目漱石", hp: 360, maxHp: 360, atk: 25, abName: "月が綺麗ですね", desc: "⚡月が綺麗ですね: 正解時25%の確率でHP30回復" },
+    { name: "芥川龍之介", hp: 200, maxHp: 200, atk: 40, abName: "蜘蛛の糸", desc: "⚡蜘蛛の糸: 自分がクイズに正解した時、敵のHPを10奪って回復する" },
+    { name: "中島敦", hp: 300, maxHp: 300, atk: 30, abName: "月下獣", desc: "⚡月下獣: 最初の正解時のみ与ダメージが2倍" },
+    { name: "森鴎外", hp: 320, maxHp: 320, atk: 28, abName: "舞姫", desc: "⚡舞姫: 20%の確率で敵の攻撃を完全回避" },
+    { name: "宮沢賢治", hp: 280, maxHp: 280, atk: 32, abName: "雨ニモマケズ", desc: "⚡雨ニモマケズ: 受ける全てのダメージを一律5軽減" },
+    { name: "鴨長明", hp: 220, maxHp: 220, atk: 38, abName: "無常観", desc: "⚡無常観: 5連続正解すると敵のATKを永久半減" },
+    { name: "永井荷風", hp: 310, maxHp: 310, atk: 27, abName: "断腸亭日乗", desc: "⚡断腸亭日乗: 毎ターン終了時、敵のHPを5吸収" },
+    { name: "梶井基次郎", hp: 210, maxHp: 210, atk: 38, abName: "鮮烈なる檸檬", desc: "⚡鮮烈なる檸檬: HPが減るほどATKが最大1.5倍に" },
+    { name: "野間宏", hp: 300, maxHp: 300, atk: 29, abName: "真空地帯", desc: "HP30%以下でATKが1.4倍に上昇" },
+    { name: "安部公房", hp: 330, maxHp: 330, atk: 26, abName: "砂の壁", desc: "クイズ誤答時のペナルティ反撃を完全無効" },
+    { name: "井上靖", hp: 350, maxHp: 350, atk: 26, abName: "天平の甍", desc: "3連正解するたびにHP40大回復" },
+    { name: "三浦哲郎", hp: 310, maxHp: 310, atk: 29, abName: "忍ぶ川の情愛", desc: "HP50以下になると一度だけHP40回復" },
+    { name: "開高健", hp: 300, maxHp: 300, atk: 32, abName: "熱き輝ける闇", desc: "正解時15%の確率で2倍ダメージ" },
+    { name: "遠藤周作", hp: 340, maxHp: 340, atk: 25, abName: "大いなる沈黙", desc: "すべての被ダメージを常に15%カット" },
+    { name: "大江健三郎", hp: 270, maxHp: 270, atk: 36, abName: "個人的な神話", desc: "正解するたびに自身のATKが永続で3加算" },
+    { name: "幸田文", hp: 330, maxHp: 330, atk: 26, abName: "慢りしき流れる", desc: "攻撃を受けた際15%の確率で無効化" },
+    { name: "重松清", hp: 320, maxHp: 320, atk: 26, abName: "親心のバリア", desc: "開幕に耐久40のシールドを展開" },
+    { name: "星新一", hp: 260, maxHp: 260, atk: 30, abName: "おせっかいな宇宙人", desc: "毎ターンATKが15〜45の間でランダム変動" },
+    { name: "鷺沢萠", hp: 260, maxHp: 260, atk: 34, abName: "駆ける衝動", desc: "毎ターン終了時に敵に10の固定ダメージ" },
+    { name: "浅田次郎", hp: 330, maxHp: 330, atk: 28, abName: "ぽっぽやの奇跡", desc: "致死ダメージを受けても一度だけHP1で耐える" }
+];
 
         const allBungoNamesForDummy = [
             "太宰治", "夏目漱石", "芥川龍之介", "中島敦", "森鴎外", "宮沢賢治", "鴨長明", "永井荷風", "野間宏", "梅崎春生", 
